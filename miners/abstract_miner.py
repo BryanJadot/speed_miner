@@ -1,6 +1,3 @@
-import sys
-sys.path.insert(0, '/home/bryan/src')
-
 from abc import ABC, abstractmethod
 
 
