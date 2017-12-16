@@ -36,15 +36,3 @@ class MiningMonitor(object)
                 current_miner = best_miner
 
             current_miner.join(check_interval)
-
-
-class ZPoolMiningGroup(AbstractMiningGroup):
-    def __init__(self):
-        pass
-
-    def get_most_profitable_miner(self):
-        pass
-
-
-if __name__ == "main":
-    MiningMonitor.mine(ZPoolMiningGroup())
