@@ -2,8 +2,9 @@ from abc import ABC, abstractmethod
 
 
 class AbstractMiner(ABC):
-    def __init__(self)
-        pass
+    @classmethod
+    def get_supported_algos(cls):
+        raise NotImplementedError()
 
     def start_and_return_when_miner_is_using_gpu(self):
         self.start_and_return()
@@ -22,5 +23,9 @@ class AbstractMiner(ABC):
         pass
 
     @abstractmethod
-    def benchmark(self):
+    def benchmark(self, num_samples=20):
+        pass
+
+    @abstractmethod
+    def wait(self, timeout=None):
         pass
