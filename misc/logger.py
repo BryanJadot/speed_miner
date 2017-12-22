@@ -1,5 +1,9 @@
 from sys import stdout
 
+from threading import Lock
+
+_pr_lock = Lock()
+
 def pr(text, prefix=None, stream=stdout):
     if prefix:
         assert isinstance(prefix, str)
@@ -11,7 +15,10 @@ def pr(text, prefix=None, stream=stdout):
         buf = stream
     elif isinstance(text, bytes):
         buf = stream.buffer
-        prefix = bytes(prefix)
+        prefix = prefix.encode("utf-8")
+    else:
+        raise Exception("Unsupported input of type: %s", str(type(text)))
 
-    buf.write(prefix + text)
-    buf.flush()
+    with _pr_lock:
+        buf.write(prefix + text)
+        buf.flush()

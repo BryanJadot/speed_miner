@@ -29,3 +29,11 @@ class AbstractMiner(ABC):
     @abstractmethod
     def wait(self, timeout=None):
         pass
+
+    @abstractmethod
+    def get_stdout(self):
+        pass
+
+    @abstractmethod
+    def get_stderr(self):
+        pass

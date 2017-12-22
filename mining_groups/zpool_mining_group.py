@@ -139,7 +139,7 @@ class ZPoolMiningGroup(AbstractMiningGroup):
 
         for algo in supported_ccminer_algos:
             path_to_exec = algo_to_custom_ccminer.get(algo) or default_ccminer
-            url = "%s%s" % (algo, ZPoolMiningGroup.ZPOOL_URL_SUFFIX)
+            url = "stratum+tcp://%s%s" % (algo, ZPoolMiningGroup.ZPOOL_URL_SUFFIX)
             port = algo_to_pools[algo]["port"]
             wallet = Wallets.get_wallet_for(self._payout_currency)
             password = self._generate_password(self._payout_currency)

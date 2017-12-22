@@ -91,7 +91,7 @@ class CCMiner(AbstractMiner):
             cmd = "%s -i %s" % (cmd, intensity)
 
         if url:
-            cmd = "%s -o stratum+tcp://%s" % (cmd, url)
+            cmd = "%s -o %s" % (cmd, url)
 
         if port:
             cmd = "%s:%s" % (cmd, port)
@@ -115,8 +115,8 @@ class CCMiner(AbstractMiner):
             self.wallet,
             self.password
         )
-        pr("Executing \"%s\"\n" % cmd, prefix="CCMiner")
-        self.miner_proc = Popen(cmd.split(" "), stdout=PIPE)
+        pr("Executing \"%s\"\n" % cmd, prefix=str(self))
+        self.miner_proc = Popen(cmd.split(" "), stdout=PIPE, stderr=PIPE)
 
     def stop_mining_and_return_when_stopped(self):
         self.miner_proc.terminate()
@@ -174,4 +174,17 @@ class CCMiner(AbstractMiner):
         self.miner_proc.wait(timeout=timeout)
 
     def __str__(self):
-        return "CCMiner (%s)" % self.algo
+        return "CCMiner - %s" % self.algo
+
+    def get_stdout(self):
+        if not self.miner_proc or self.miner_proc.poll() is not None:
+            raise Exception("Miner proc not running!")
+
+        print(self.miner_proc.stdout)
+        return self.miner_proc.stdout
+
+    def get_stderr(self):
+        if not self.miner_proc or self.miner_proc.poll() is not None:
+            raise Exception("Miner proc not running!")
+        print(self.miner_proc.stderr)
+        return self.miner_proc.stderr
