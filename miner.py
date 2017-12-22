@@ -7,4 +7,4 @@ from multi_miner.monitor import MiningMonitor
 from multi_miner.mining_groups.zpool_mining_group import ZPoolMiningGroup
 
 if __name__ == "__main__":
-    MiningMonitor.mine(ZPoolMiningGroup("btc"))
+    MiningMonitor.mine(ZPoolMiningGroup("ltc"))
