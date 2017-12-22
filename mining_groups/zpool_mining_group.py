@@ -104,10 +104,7 @@ class ZPoolMiningGroup(AbstractMiningGroup):
 
     def _fetch_pools(self):
         pr("Fetching pool info...\n", prefix="ZPool Mining Group")
-        data = Fetcher.fetch_json_api(
-            "http://www.zpool.ca/api/status",
-            use_cache_on_failure=True
-        )
+        data = Fetcher.fetch_json_api("http://www.zpool.ca/api/status")
 
         return {
             v["name"]: {"algo": v["name"], "port": v["port"]}
