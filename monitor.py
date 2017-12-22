@@ -8,7 +8,7 @@ from multi_miner.misc.logger import pr
 
 
 class MiningMonitor(object):
-    DEFAULT_CHECK_INTERVAL = 20 # seconds
+    DEFAULT_CHECK_INTERVAL = 60 # seconds
 
     @staticmethod
     def output_printer(stream, out_stream, name):

@@ -1,3 +1,5 @@
+import sys
+
 from requests import get as rget
 from requests.exceptions import ReadTimeout
 
@@ -22,7 +24,8 @@ class Fetcher(object):
             elif use_cache_on_failure and url in Fetcher._cache:
                 pr(
                     "\033[91mBad response from '%s\'! Falling back to cache...\033[0m\n" % url,
-                    prefix="Fetcher"
+                    prefix="Fetcher",
+                    stream=sys.stderr,
                 )
                 return Fetcher._cache[url]
 
@@ -30,7 +33,8 @@ class Fetcher(object):
             sleep_time = min(2**num_tries - 1, Fetcher._MAX_WAIT)
             pr(
                 "\033[91mBad response from '%s\'! Backing off for %i second(s)...\033[0m\n" % (url, sleep_time),
-                prefix="Fetcher"
+                prefix="Fetcher",
+                stream=sys.stderr,
             )
             sleep(sleep_time)
 
