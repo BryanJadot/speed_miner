@@ -1,11 +1,11 @@
-import requests
-
 from subprocess import PIPE, Popen
 
 from multi_miner.miners.ccminer import CCMiner
 from multi_miner.mining_groups.abstract_mining_group import AbstractMiningGroup
+from multi_miner.misc.fetcher import Fetcher
 from multi_miner.misc.logger import pr
 from multi_miner.misc.wallets import Wallets
+
 
 class ZPoolMiningGroup(AbstractMiningGroup):
     ZPOOL_URL_SUFFIX = ".mine.zpool.ca"
@@ -13,8 +13,6 @@ class ZPoolMiningGroup(AbstractMiningGroup):
 
     def __init__(self, payout_currency):
         self._payout_currency = payout_currency
-        self._cached_ccminer_algos = None
-        self._cached_pool_data = None
 
     def _get_zpool_profitability_unit(self, algo):
         if algo == "sha256":
@@ -90,7 +88,7 @@ class ZPoolMiningGroup(AbstractMiningGroup):
 
     def _fetch_most_profitable_algo(self, supported_algos, algo_to_benchmarks):
         pr("Fetching currency info for pool...\n", prefix="Zpool Mining Group")
-        data = requests.get("http://www.zpool.ca/api/currencies").json()
+        data = Fetcher.fetch_json_api("http://www.zpool.ca/api/currencies")
 
         best_algo = None
         best_estimate = -1
@@ -106,14 +104,10 @@ class ZPoolMiningGroup(AbstractMiningGroup):
 
     def _fetch_pools(self):
         pr("Fetching pool info...\n", prefix="ZPool Mining Group")
-        try:
-            data = requests.get("http://www.zpool.ca/api/status").json()
-        except ValueError as er:
-            if self._cached_pool_data:
-                data = self._cached_pool_data
-            else:
-                raise er
-        self._cached_pool_data = data
+        data = Fetcher.fetch_json_api(
+            "http://www.zpool.ca/api/status",
+            use_cache_on_failure=True
+        )
 
         return {
             v["name"]: {"algo": v["name"], "port": v["port"]}
