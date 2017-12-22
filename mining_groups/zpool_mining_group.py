@@ -121,8 +121,24 @@ class ZPoolMiningGroup(AbstractMiningGroup):
 
         return algo_to_pool
 
-    def _generate_password(self, payout_currency):
-        return "c=%s" % (payout_currency.upper())
+    def _generate_password(self, payout_currency, diff=None):
+        pw = "c=%s" % (payout_currency.upper())
+        if diff:
+            pw = "%s,d=%f" % (pw, diff)
+
+        return pw
+
+    def _get_custom_diff(self, algo):
+        return {
+            "lyra2v2": 0.25,
+            "nist5": 0.0025,
+            "qubit": 0.001,
+            "blake2s": 5, #2.0,
+            "skunk": 0.004,
+            "keccak": 0.3,
+            "x17": 0.001,
+        }.get(algo)
+
 
     def _create_miners_based_on_pools(self, algo_to_pools):
         pr("Prepping pool miners...\n", prefix="Zpool Mining Group")
@@ -142,7 +158,7 @@ class ZPoolMiningGroup(AbstractMiningGroup):
             url = "stratum+tcp://%s%s" % (algo, ZPoolMiningGroup.ZPOOL_URL_SUFFIX)
             port = algo_to_pools[algo]["port"]
             wallet = Wallets.get_wallet_for(self._payout_currency)
-            password = self._generate_password(self._payout_currency)
+            password = self._generate_password(self._payout_currency, diff=self._get_custom_diff(algo))
 
             miners[algo] = CCMiner(path_to_exec, algo, url, port, wallet, password)
 

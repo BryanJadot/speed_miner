@@ -73,7 +73,8 @@ class CCMiner(AbstractMiner):
 
         kwarg_str = ""
         if kwargs:
-            for k,v in kwargs.items():
+            # Let's keep the order of the kwargs always consistent.
+            for k,v in iter(sorted(list(kwargs.items()))):
                 kwarg_str += " %s" % k
                 if v:
                     kwarg_str += " %s" %v
@@ -104,10 +105,8 @@ class CCMiner(AbstractMiner):
 
         return cmd.strip()
 
-        #cmd = "%(exec)s -a %(algo)s --quiet -i 22 %(kwargs)s-o %(url)s:%(port)s -u %(wallet)s -p %(pass)s" % run_args
-
-    def start_and_return(self):
-        cmd = self._get_run_cmd(
+    def get_mining_cmd(self):
+        return self._get_run_cmd(
             self.path_to_exec,
             self.algo,
             self.url,
@@ -115,6 +114,9 @@ class CCMiner(AbstractMiner):
             self.wallet,
             self.password
         )
+
+    def start_and_return(self):
+        cmd = self.get_mining_cmd()
         pr("Executing \"%s\"\n" % cmd, prefix=str(self))
         self.miner_proc = Popen(cmd.split(" "), stdout=PIPE, stderr=PIPE)
 
@@ -180,11 +182,13 @@ class CCMiner(AbstractMiner):
         if not self.miner_proc or self.miner_proc.poll() is not None:
             raise Exception("Miner proc not running!")
 
-        print(self.miner_proc.stdout)
         return self.miner_proc.stdout
 
     def get_stderr(self):
         if not self.miner_proc or self.miner_proc.poll() is not None:
             raise Exception("Miner proc not running!")
-        print(self.miner_proc.stderr)
+
         return self.miner_proc.stderr
+
+    def __eq__(self, other):
+        return self.get_mining_cmd() == (other and other.get_mining_cmd())
