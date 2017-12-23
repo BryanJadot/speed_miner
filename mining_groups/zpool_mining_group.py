@@ -2,17 +2,40 @@ from subprocess import PIPE, Popen
 
 from multi_miner.miners.ccminer import CCMiner
 from multi_miner.mining_groups.abstract_mining_group import AbstractMiningGroup
+from multi_miner.misc.config_loader import InvalidMiningConfig, MiningConfigLoader
 from multi_miner.misc.fetcher import Fetcher
 from multi_miner.misc.logger import pr
-from multi_miner.misc.wallets import Wallets
+
+
+class ZPoolMiningGroupLoader(MiningConfigLoader):
+    def describe(self):
+        return "Looks like you're try to mine zpool!"
+
+    def describe_payout_currency(self):
+        return "Put the three letter acronym of the payout currency here."
+
+    def parse_payout_currency(self, value):
+        if len(value) == 3:
+            return str(value)
+        else:
+            raise InvalidMiningConfig("This is probably a bad payout currency. Should be three letters.")
 
 
 class ZPoolMiningGroup(AbstractMiningGroup):
     ZPOOL_URL_SUFFIX = ".mine.zpool.ca"
     BLACKLISTED_ALGOS = set(["scrypt"])
 
-    def __init__(self, payout_currency):
+    @staticmethod
+    def get_group_config_loader():
+        return ZPoolMiningGroupLoader()
+
+    @staticmethod
+    def init_from_config(config):
+        return ZPoolMiningGroup(config["payout_currency"], config["wallet"])
+
+    def __init__(self, payout_currency, wallet):
         self._payout_currency = payout_currency
+        self._wallet = wallet
 
     def _get_zpool_profitability_unit(self, algo):
         if algo == "sha256":
@@ -136,10 +159,9 @@ class ZPoolMiningGroup(AbstractMiningGroup):
             path_to_exec = algo_to_custom_ccminer.get(algo) or default_ccminer
             url = "stratum+tcp://%s%s" % (algo, ZPoolMiningGroup.ZPOOL_URL_SUFFIX)
             port = algo_to_port[algo]
-            wallet = Wallets.get_wallet_for(self._payout_currency)
             password = self._generate_password(self._payout_currency)
 
-            miners[algo] = CCMiner(path_to_exec, algo, url, port, wallet, password)
+            miners[algo] = CCMiner(path_to_exec, algo, url, port, self._wallet, password)
 
         return miners
 

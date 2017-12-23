@@ -1,7 +1,14 @@
 from abc import ABC, abstractmethod
 
 class AbstractMiningGroup(ABC):
-    def __init__(self):
+    @staticmethod
+    @abstractmethod
+    def get_group_config_loader():
+        pass
+
+    @staticmethod
+    @abstractmethod
+    def init_from_config(config):
         pass
 
     @abstractmethod
