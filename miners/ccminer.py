@@ -1,4 +1,7 @@
+import sys
+
 from subprocess import PIPE, Popen
+from threading import Thread
 
 from multi_miner.miners.abstract_miner import AbstractMiner
 from multi_miner.misc.benchmark import Benchmark, Benchmarker, BenchmarkUnit
@@ -17,6 +20,7 @@ class CCMiner(AbstractMiner):
         self.wallet = wallet
         self.password = password
         self.miner_proc = None
+        self.logger_thread = None
 
     @classmethod
     def get_supported_algos(cls):
@@ -118,14 +122,32 @@ class CCMiner(AbstractMiner):
     def start_and_return(self):
         cmd = self.get_mining_cmd()
         pr("Executing \"%s\"\n" % cmd, prefix=str(self))
-        self.miner_proc = Popen(cmd.split(" "), stdout=PIPE, stderr=PIPE)
+        self.miner_proc = Popen(cmd.split(" "), stdout=PIPE)
+        self.logger_thread = self._start_and_return_logging_thread(self.miner_proc.stdout)
+
+    @staticmethod
+    def stdout_printer(stdout, name):
+        for line in stdout:
+            pr(line, prefix=name, stream=sys.stdout)
+
+    def _start_and_return_logging_thread(self, proc_stdout):
+        t = Thread(
+            target=CCMiner.stdout_printer,
+            args=(proc_stdout, str(self)),
+            name="%s (%s)" % (str(self), "stdout"),
+        )
+        t.daemon = True
+        t.start()
+        return t
 
     def stop_mining_and_return_when_stopped(self):
         self.miner_proc.terminate()
         self.miner_proc.wait(3)
         self.miner_proc.kill()
         self.miner_proc.wait()
+        self.logger_thread.join()
         self.miner_proc = None
+        self.logger_thread = None
 
     def benchmark(self):
         cmd = self._get_run_cmd(
@@ -177,18 +199,6 @@ class CCMiner(AbstractMiner):
 
     def __str__(self):
         return "CCMiner - %s" % self.algo
-
-    def get_stdout(self):
-        if not self.miner_proc or self.miner_proc.poll() is not None:
-            raise Exception("Miner proc not running!")
-
-        return self.miner_proc.stdout
-
-    def get_stderr(self):
-        if not self.miner_proc or self.miner_proc.poll() is not None:
-            raise Exception("Miner proc not running!")
-
-        return self.miner_proc.stderr
 
     def __eq__(self, other):
         return self.get_mining_cmd() == (other and other.get_mining_cmd())

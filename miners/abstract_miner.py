@@ -31,13 +31,5 @@ class AbstractMiner(ABC):
         pass
 
     @abstractmethod
-    def get_stdout(self):
-        pass
-
-    @abstractmethod
-    def get_stderr(self):
-        pass
-
-    @abstractmethod
     def __eq__(self):
         pass
