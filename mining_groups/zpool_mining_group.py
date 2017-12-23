@@ -86,46 +86,46 @@ class ZPoolMiningGroup(AbstractMiningGroup):
         else:
             raise Exception("Unsupported algo: %s" % algo)
 
-    def _fetch_most_profitable_algo(self, algo_to_benchmarks):
-        pr("Fetching currency info for pool...\n", prefix="Zpool Mining Group")
-        data = Fetcher.fetch_json_api("http://www.zpool.ca/api/currencies")
+    def _get_currencies(self):
+        pr("Fetching currency info...\n", prefix="Zpool Mining Group")
+        return list(Fetcher.fetch_json_api("http://www.zpool.ca/api/currencies").values())
 
-        def _get_prof(v):
-            return algo_to_benchmarks[v["algo"]].get_24_hour_profitability(
-                    float(v["estimate"]), self._get_zpool_profitability_unit(v["algo"]))
+    def _fetch_most_profitable_algo(self, currencies, algo_to_benchmarks):
+        pr("Finding most profitable algo...\n", prefix="Zpool Mining Group")
 
-        lst = sorted([v for v in data.values() if v["algo"] in algo_to_benchmarks], key=_get_prof, reverse=True)
-        for v in lst:
-            pr("\tProfitability of %s (%s) = %0.4f\n" % (v["name"], v["algo"], _get_prof(v)), prefix=str(self))
+        def _get_prof(c):
+            return algo_to_benchmarks[c["algo"]].get_24_hour_profitability(
+                float(c["estimate"]),
+                self._get_zpool_profitability_unit(c["algo"]),
+            )
 
-        return lst[0]["algo"]
+        sorted_currencies = sorted(
+            [c for c in currencies if c["algo"] in algo_to_benchmarks],
+            key=_get_prof,
+            reverse=True,
+        )
+        for v in sorted_currencies:
+            pr(
+                "\tProfitability of %s (%s) = %0.4f\n" % (v["name"], v["algo"], _get_prof(v)),
+                prefix=str(self),
+            )
 
-    def _fetch_pools(self):
-        pr("Fetching pool info...\n", prefix="ZPool Mining Group")
-        data = Fetcher.fetch_json_api("http://www.zpool.ca/api/status")
+        return sorted_currencies[0]["algo"]
 
-        return {
-            v["name"]: {"algo": v["name"], "port": v["port"]}
-            for v in data.values()
-        }
-
-    def _filter_blacklisted_algos_from_pools(self, algo_to_pool):
-        algo_to_pool = dict(algo_to_pool)
-        for algo in ZPoolMiningGroup.BLACKLISTED_ALGOS:
-            del algo_to_pool[algo]
-
-        return algo_to_pool
+    def _filter_blacklisted_algos_from_currencies(self, currencies):
+        return [c for c in currencies if c["algo"] not in ZPoolMiningGroup.BLACKLISTED_ALGOS]
 
     def _generate_password(self, payout_currency):
         return "c=%s" % (payout_currency.upper())
 
-    def _create_miners_based_on_pools(self, algo_to_pools):
-        pr("Prepping pool miners...\n", prefix="Zpool Mining Group")
+    def _create_miners_for_currencies(self, currencies):
+        pr("Prepping miners...\n", prefix="Zpool Mining Group")
         miners = {}
-        pool_algos = {p["algo"] for p in algo_to_pools.values()}
+        algo_to_port = {c["algo"]: c["port"] for c in currencies}
+        supported_algos = set(algo_to_port.keys())
 
         # CCMiner
-        supported_ccminer_algos = CCMiner.get_supported_algos() & pool_algos
+        supported_ccminer_algos = CCMiner.get_supported_algos() & supported_algos
 
         algo_to_custom_ccminer = {
             "lyra2v2": "/usr/local/bin/vertminer",
@@ -135,7 +135,7 @@ class ZPoolMiningGroup(AbstractMiningGroup):
         for algo in supported_ccminer_algos:
             path_to_exec = algo_to_custom_ccminer.get(algo) or default_ccminer
             url = "stratum+tcp://%s%s" % (algo, ZPoolMiningGroup.ZPOOL_URL_SUFFIX)
-            port = algo_to_pools[algo]["port"]
+            port = algo_to_port[algo]
             wallet = Wallets.get_wallet_for(self._payout_currency)
             password = self._generate_password(self._payout_currency)
 
@@ -148,11 +148,11 @@ class ZPoolMiningGroup(AbstractMiningGroup):
         return {algo: miner.benchmark() for algo, miner in algo_to_miners.items()}
 
     def get_most_profitable_miner(self):
-        algo_to_pools = self._fetch_pools()
-        algo_to_pools = self._filter_blacklisted_algos_from_pools(algo_to_pools)
-        algo_to_miners = self._create_miners_based_on_pools(algo_to_pools)
+        currencies = self._get_currencies()
+        currencies = self._filter_blacklisted_algos_from_currencies(currencies)
+        algo_to_miners = self._create_miners_for_currencies(currencies)
         algo_to_benchmarks = self._get_benchmarks(algo_to_miners)
-        best_algo = self._fetch_most_profitable_algo(algo_to_benchmarks)
+        best_algo = self._fetch_most_profitable_algo(currencies, algo_to_benchmarks)
 
         return algo_to_miners[best_algo]
 
