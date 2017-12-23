@@ -15,8 +15,11 @@ class MiningMonitor(object):
         # Start the new mining thread and block until it starts generating currency.
         new_miner.start_and_return_when_miner_is_using_gpu()
 
-        # Now, kill the old mining thread.
         if current_miner:
+            # Wait for the current_miner to finish its last share.
+            current_miner.return_when_share_is_done()
+
+            # Now, kill the old mining thread.
             current_miner.stop_mining_and_return_when_stopped()
 
     @staticmethod

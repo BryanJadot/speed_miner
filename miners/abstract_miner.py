@@ -15,6 +15,10 @@ class AbstractMiner(ABC):
         pass
 
     @abstractmethod
+    def return_when_share_is_done(self):
+        pass
+
+    @abstractmethod
     def start_and_return(self):
         pass
 

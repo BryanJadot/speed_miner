@@ -1,7 +1,7 @@
 import sys
 
 from subprocess import PIPE, Popen
-from threading import Thread
+from threading import Condition, Thread
 
 from multi_miner.miners.abstract_miner import AbstractMiner
 from multi_miner.misc.benchmark import Benchmark, Benchmarker, BenchmarkUnit
@@ -21,6 +21,7 @@ class CCMiner(AbstractMiner):
         self.password = password
         self.miner_proc = None
         self.logger_thread = None
+        self.share_cond = Condition()
 
     @classmethod
     def get_supported_algos(cls):
@@ -57,6 +58,11 @@ class CCMiner(AbstractMiner):
                 break
 
         checker.kill()
+
+    def return_when_share_is_done(self):
+        self.share_cond.acquire()
+        self.share_cond.wait()
+        self.share_cond.release()
 
     def _get_intensity_override(self, algo):
         # Hack to set intensity for a specific algo.
@@ -126,14 +132,18 @@ class CCMiner(AbstractMiner):
         self.logger_thread = self._start_and_return_logging_thread(self.miner_proc.stdout)
 
     @staticmethod
-    def stdout_printer(stdout, name):
+    def stdout_printer(stdout, name, share_cond):
         for line in stdout:
+            if b"boo!" in line or b"yes!" in line:
+                share_cond.acquire()
+                share_cond.notify_all()
+                share_cond.release()
             pr(line, prefix=name, stream=sys.stdout)
 
     def _start_and_return_logging_thread(self, proc_stdout):
         t = Thread(
             target=CCMiner.stdout_printer,
-            args=(proc_stdout, str(self)),
+            args=(proc_stdout, str(self), self.share_cond),
             name="%s (%s)" % (str(self), "stdout"),
         )
         t.daemon = True
