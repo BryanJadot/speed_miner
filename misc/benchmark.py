@@ -63,14 +63,16 @@ class Benchmark(object):
         return self.unit
 
     def get_24_hour_profitability(self, profitability, unit):
+        # Profitability is usually mBTC / (rate)
+        # Convert to the standard rate of sol or mh.
         if unit == "kh":
-            profitability = profitability / 1000
-        elif unit == "gh" or unit == "ks":
             profitability = profitability * 1000
+        elif unit == "gh" or unit == "ks":
+            profitability = profitability / 1000
         elif unit == "th" or unit == "ms":
-            profitability = profitability * 1000000
+            profitability = profitability / 1000000
         elif unit == "ph":
-            profitability = profitability * 1000000000
+            profitability = profitability / 1000000000
         elif unit != "s" and unit != "mh":
             raise Exception("Unsupported unit: %s" % unit)
 

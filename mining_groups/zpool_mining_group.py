@@ -86,21 +86,19 @@ class ZPoolMiningGroup(AbstractMiningGroup):
         else:
             raise Exception("Unsupported algo: %s" % algo)
 
-    def _fetch_most_profitable_algo(self, supported_algos, algo_to_benchmarks):
+    def _fetch_most_profitable_algo(self, algo_to_benchmarks):
         pr("Fetching currency info for pool...\n", prefix="Zpool Mining Group")
         data = Fetcher.fetch_json_api("http://www.zpool.ca/api/currencies")
 
-        best_algo = None
-        best_estimate = -1
-        for v in data.values():
-            if v["algo"] in supported_algos:
-                profitability = algo_to_benchmarks[v["algo"]].get_24_hour_profitability(
+        def _get_prof(v):
+            return algo_to_benchmarks[v["algo"]].get_24_hour_profitability(
                     float(v["estimate"]), self._get_zpool_profitability_unit(v["algo"]))
-                if profitability > best_estimate:
-                    best_algo = v["algo"]
-                    best_estimate = profitability
 
-        return best_algo
+        lst = sorted([v for v in data.values() if v["algo"] in algo_to_benchmarks], key=_get_prof, reverse=True)
+        for v in lst:
+            pr("\tProfitability of %s (%s) = %0.4f\n" % (v["name"], v["algo"], _get_prof(v)), prefix=str(self))
+
+        return lst[0]["algo"]
 
     def _fetch_pools(self):
         pr("Fetching pool info...\n", prefix="ZPool Mining Group")
@@ -154,7 +152,7 @@ class ZPoolMiningGroup(AbstractMiningGroup):
         algo_to_pools = self._filter_blacklisted_algos_from_pools(algo_to_pools)
         algo_to_miners = self._create_miners_based_on_pools(algo_to_pools)
         algo_to_benchmarks = self._get_benchmarks(algo_to_miners)
-        best_algo = self._fetch_most_profitable_algo(set(algo_to_miners.keys()), algo_to_benchmarks)
+        best_algo = self._fetch_most_profitable_algo(algo_to_benchmarks)
 
         return algo_to_miners[best_algo]
 
