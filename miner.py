@@ -1,12 +1,4 @@
-#!/usr/bin/python3
-
-SRC_LOC = '/usr/local/src'
-
 from argparse import ArgumentParser
-import sys
-sys.path.insert(0, SRC_LOC)
-sys.path.insert(0, "/home/bryan/src")
-
 from subprocess import Popen
 
 from multi_miner.monitor import MiningMonitor
@@ -38,7 +30,7 @@ class MainConfigLoader(MiningConfigLoader):
         return str(value)
 
 
-if __name__ == "__main__":
+def mine():
     parser = ArgumentParser()
     parser.add_argument(
         "-c",
