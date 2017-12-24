@@ -65,11 +65,9 @@ class MiningConfigLoader(ABC):
         if len(missing_keys) > 0:
             raise InvalidMiningConfig("Missing required config parameter(s) - %s" % ", ".join(missing_keys))
 
-        default_parse_funcs = self._get_prefix_funcs("default_parse_")
-
         return {
-            k: getattr(self, 'parse_%s' % k, lambda v: None)(v)
-            for k, v in json_dict.items()
+            k: func(json_dict[k])
+            for k, func in parse_funcs.items()
         }
 
     def _print_error(self, err):
