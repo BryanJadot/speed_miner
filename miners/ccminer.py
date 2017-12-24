@@ -134,7 +134,7 @@ class CCMiner(AbstractMiner):
     @staticmethod
     def stdout_printer(stdout, name, share_cond):
         for line in stdout:
-            if b"boo!" in line or b"yes!" in line:
+            if b"booooo" in line or b"yes!" in line:
                 share_cond.acquire()
                 share_cond.notify_all()
                 share_cond.release()
