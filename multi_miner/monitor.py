@@ -4,7 +4,7 @@ from subprocess import TimeoutExpired
 from threading import Thread
 from time import time
 
-from multi_miner.misc.logger import pr
+from multi_miner.misc.logging import LOG
 
 
 class MiningMonitor(object):
@@ -24,23 +24,23 @@ class MiningMonitor(object):
 
     @staticmethod
     def mine(mining_group, check_interval=DEFAULT_CHECK_INTERVAL):
-        pr("Starting miner for \033[92m%s\033[0m!\n" % mining_group, prefix="Monitor")
+        LOG.info("Starting miner for \033[92m%s\033[0m!", mining_group)
         current_miner = None
         last_check_time = None
 
         while True:
-            pr("Finding most profitable miner for \033[92m%s\033[0m...\n" % mining_group, prefix="Monitor")
+            LOG.debug("Finding most profitable miner for \033[92m%s\033[0m...", mining_group)
             best_miner = mining_group.get_most_profitable_miner()
-            pr("Found best miner: \033[92m%s\033[0m!\n" % best_miner, prefix="Monitor")
+            LOG.debug("Found best miner: \033[92m%s\033[0m!", best_miner)
 
             if best_miner != current_miner:
-                pr("Switching to \033[92m%s\033[0m...\n" % best_miner, prefix="Monitor")
+                LOG.info("Switching to \033[92m%s\033[0m...", best_miner)
                 MiningMonitor.switch_miner_and_return_when_started(
                     best_miner, current_miner)
-                pr("Switch complete!\n", prefix="Monitor")
+                LOG.info("Switch complete!")
                 current_miner = best_miner
 
-            pr("Sleeping for %i seconds...\n" % check_interval, prefix="Monitor")
+            LOG.debug("Sleeping for %i seconds...", check_interval)
             try:
                 current_miner.wait(check_interval)
             except TimeoutExpired as err:

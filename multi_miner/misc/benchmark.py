@@ -1,9 +1,6 @@
 from enum import auto, Enum, unique
 from math import ceil, floor
 
-from multi_miner.misc.logger import pr
-
-
 @unique
 class BenchmarkUnit(Enum):
     HASH_SEC = 'h/s'

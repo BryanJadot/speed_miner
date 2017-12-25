@@ -1,0 +1,86 @@
+import inspect
+import logging
+import sys
+
+
+class _LogRangeFilter(logging.Filter):
+    def __init__(self, low, high):
+        self._low = low
+        self._high = high
+
+    def filter(self, record):
+        return record.levelno >= self._low and record.levelno <= self._high
+
+
+class _MinerFormatter(logging.Formatter):
+    def _get_log_color(self, log_level):
+        return {
+            logging.DEBUG: "\033[0m", # Is this color not working??
+            logging.INFO: "\033[94m",
+            logging.WARNING: "\033[93m",
+            logging.ERROR: "\033[91m",
+            logging.CRITICAL: "\033[91m",
+        }[log_level] + "\033[1m"
+
+    def usesTime(self):
+        return True
+
+    def formatMessage(self, record):
+        record_dict = record.__dict__
+        record_dict.update({"color_fmt": self._get_log_color(record.levelno)})
+        return "%(color_fmt)s[%(module)s @ %(asctime)s]\033[0m %(message)s" % record_dict
+
+
+class _LOGMeta(type):
+    def __init__(cls, name, bases, dct):
+        cls._logging_inited = None
+        cls.all_log_levels = {
+            "debug": logging.DEBUG,
+            "info": logging.INFO,
+            "warning": logging.WARNING,
+            "error": logging.ERROR,
+            "critical": logging.CRITICAL,
+        }
+
+
+    def init_logging(cls, log_level):
+        assert not cls._logging_inited, "Logger already setup!"
+        cls._setup_logger(logging.getLogger(), log_level)
+        cls._logging_inited = True
+
+    def _setup_logger(cls, logger, log_level):
+        stdout_handler = logging.StreamHandler(stream=sys.stdout)
+        stdout_handler.addFilter(_LogRangeFilter(logging.DEBUG, logging.INFO))
+        stdout_handler.setFormatter(_MinerFormatter())
+        stdout_handler.setLevel(logging.DEBUG)
+
+        stderr_handler = logging.StreamHandler(stream=sys.stderr)
+        stderr_handler.addFilter(_LogRangeFilter(logging.WARNING, logging.CRITICAL))
+        stderr_handler.setFormatter(_MinerFormatter())
+        stderr_handler.setLevel(logging.DEBUG)
+
+        logger.setLevel(log_level)
+        logger.addHandler(stdout_handler)
+        logger.addHandler(stderr_handler)
+
+        return logger
+
+    def __getattr__(cls, key):
+        # For now, lock down non-logging functions.
+        if key not in cls.all_log_levels:
+            raise AttributeError(key)
+
+        return getattr(cls._get_logger(), key)
+
+    def _get_logger(cls):
+        assert cls._logging_inited, "Need to call init_logging first"
+
+        stack = inspect.stack()
+        name = inspect.getmodule(stack[2][0]).__name__
+        logger = logging.getLogger(name)
+
+        return logger
+
+
+class LOG(object, metaclass=_LOGMeta):
+    pass

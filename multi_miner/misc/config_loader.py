@@ -1,11 +1,9 @@
+import sys
+
 from abc import ABC, ABCMeta, abstractmethod
 
 from json import loads
 from json.decoder import JSONDecodeError
-
-from sys import stderr
-
-from multi_miner.misc.logger import pr
 
 
 class InvalidMiningConfig(Exception):
@@ -89,8 +87,8 @@ class MiningConfigLoader(ABC, metaclass=MiningConfigLoaderMeta):
         }
 
     def _print_error(self, err):
-        pr("\033[31mError occurred: \"%s\".\033[m\n\n" % str(err), stream=stderr)
-        pr("%s\nPossible parameters:\n" % self.describe(), stream=stderr)
+        print("\033[31mError occurred: \"%s\".\033[m\n" % str(err), file=sys.stderr)
+        print("%s\nPossible parameters:" % self.describe(), file=sys.stderr)
 
         parse_params = sorted(list(self._get_prefix_funcs("parse_").keys()))
         default_funcs = self._get_prefix_funcs("default_parse_")
@@ -99,19 +97,19 @@ class MiningConfigLoader(ABC, metaclass=MiningConfigLoaderMeta):
         param_to_description = self._get_prefix_funcs("describe_")
         for param in parse_params:
             desc_func = param_to_description[param]
-            string = "\n\033[1m%s\033[0m\n\t%s\n" % (param, desc_func(self).replace("\n", "\n\t"))
-            pr(string, stream=stderr)
+            desc_str = "\n\033[1m%s\033[0m\n\t%s" % (param, desc_func(self).replace("\n", "\n\t"))
+            print(desc_str, file=sys.stderr)
 
         for param in default_parse_params:
             desc_func = param_to_description[param]
-            string = "\n\033[1m%s (default: \"%s\")\033[0m\n\t%s\n" % (
+            desc_string = "\n\033[1m%s (default: \"%s\")\033[0m\n\t%s" % (
                 param,
                 default_funcs[param](self, None),
                 desc_func(self).replace("\n", "\n\t"),
             )
-            pr(string, stream=stderr)
+            print(string, file=sys.stderr)
 
-        pr("\n", stream=stderr)
+        print("", stream=sys.stderr)
 
     @abstractmethod
     def describe(self):

@@ -4,7 +4,7 @@ from multi_miner.miners.ccminer import CCMiner
 from multi_miner.mining_groups.abstract_mining_group import AbstractMiningGroup
 from multi_miner.misc.config_loader import InvalidMiningConfig, MiningConfigLoader
 from multi_miner.misc.fetcher import Fetcher
-from multi_miner.misc.logger import pr
+from multi_miner.misc.logging import LOG
 
 
 class ZPoolMiningGroupLoader(MiningConfigLoader):
@@ -110,11 +110,11 @@ class ZPoolMiningGroup(AbstractMiningGroup):
             raise Exception("Unsupported algo: %s" % algo)
 
     def _get_currencies(self):
-        pr("Fetching currency info...\n", prefix="Zpool Mining Group")
+        LOG.debug("Fetching currency info...")
         return list(Fetcher.fetch_json_api("http://www.zpool.ca/api/currencies").values())
 
     def _fetch_most_profitable_algo(self, currencies, algo_to_benchmarks):
-        pr("Finding most profitable algo...\n", prefix="Zpool Mining Group")
+        LOG.debug("Finding most profitable algo...")
 
         def _get_prof(c):
             return algo_to_benchmarks[c["algo"]].get_24_hour_profitability(
@@ -128,10 +128,7 @@ class ZPoolMiningGroup(AbstractMiningGroup):
             reverse=True,
         )
         for v in sorted_currencies:
-            pr(
-                "\tProfitability of %s (%s) = %0.4f\n" % (v["name"], v["algo"], _get_prof(v)),
-                prefix=str(self),
-            )
+            LOG.debug("\tProfitability of %s (%s) = %0.4f", v["name"], v["algo"], _get_prof(v))
 
         return sorted_currencies[0]["algo"]
 
@@ -142,7 +139,7 @@ class ZPoolMiningGroup(AbstractMiningGroup):
         return "c=%s" % (payout_currency.upper())
 
     def _create_miners_for_currencies(self, currencies):
-        pr("Prepping miners...\n", prefix="Zpool Mining Group")
+        LOG.debug("Prepping miners...")
         miners = {}
         algo_to_port = {c["algo"]: c["port"] for c in currencies}
         supported_algos = set(algo_to_port.keys())
@@ -166,7 +163,7 @@ class ZPoolMiningGroup(AbstractMiningGroup):
         return miners
 
     def _get_benchmarks(self, algo_to_miners):
-        pr("Loading benchmarks from cache...\n", prefix="Zpool Mining Group")
+        LOG.debug("Loading benchmarks from cache...")
         return {algo: miner.benchmark() for algo, miner in algo_to_miners.items()}
 
     def get_most_profitable_miner(self):

@@ -1,6 +1,7 @@
 import os
 import json
 
+
 class MinerStore(object):
     PATH_TO_STORE = "/usr/local/etc/miner_store.json"
 

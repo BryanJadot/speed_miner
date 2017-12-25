@@ -5,7 +5,7 @@ from threading import Condition, Thread
 
 from multi_miner.miners.abstract_miner import AbstractMiner
 from multi_miner.misc.benchmark import Benchmark, Benchmarker, BenchmarkUnit
-from multi_miner.misc.logger import pr
+from multi_miner.misc.logging import LOG
 from multi_miner.misc.miner_store import MinerStore
 
 
@@ -127,7 +127,7 @@ class CCMiner(AbstractMiner):
 
     def start_and_return(self):
         cmd = self.get_mining_cmd()
-        pr("Executing \"%s\"\n" % cmd, prefix=str(self))
+        LOG.debug("Executing \"%s\"", cmd)
         self.miner_proc = Popen(cmd.split(" "), stdout=PIPE)
         self.logger_thread = self._start_and_return_logging_thread(self.miner_proc.stdout)
 
@@ -138,7 +138,9 @@ class CCMiner(AbstractMiner):
                 share_cond.acquire()
                 share_cond.notify_all()
                 share_cond.release()
-            pr(line, prefix=name, stream=sys.stdout)
+                LOG.info(line)
+            else:
+                LOG.debug(line)
 
     def _start_and_return_logging_thread(self, proc_stdout):
         t = Thread(
@@ -169,15 +171,15 @@ class CCMiner(AbstractMiner):
             "",
             kwargs={"--benchmark": "", "--no-color": ""}
         )
-        #pr("Benchmarking \033[92m%s\033[0m...\n" % self.algo, prefix="Benchmarker")
+        LOG.debug("Benchmarking \033[92m%s\033[0m...", self.algo)
         cache_key = "BENCH%s" % (cmd)
         cached_benchmark = MinerStore.get(cache_key)
         if cached_benchmark:
             b = Benchmark(float(cached_benchmark["rate"]), BenchmarkUnit[cached_benchmark["unit"]])
-            #pr("Benchmark found in cache: %s!\n\n" % b, prefix="Benchmarker")
+            LOG.debug("Benchmark found in cache: %s!", b)
             return b
 
-        pr("Benchmark not found for \033[92m%s\033[0m. Benchmarking...\n" % self.algo, prefix="Benchmarker")
+        LOG.info("Benchmark not found for \033[92m%s\033[0m. Benchmarking...", self.algo)
 
         bench_proc = Popen(cmd.split(" "), stdout=PIPE)
         bench_results = []
@@ -200,7 +202,7 @@ class CCMiner(AbstractMiner):
         bench_proc.wait()
 
         MinerStore.set(cache_key, {"unit": final_bench.get_unit().name, "rate": final_bench.get_rate()})
-        pr("Benchmark found: %s!\n" % final_bench, prefix="Benchmarker")
+        LOG.info("Benchmark found: %s!", final_bench)
 
         return final_bench
 
