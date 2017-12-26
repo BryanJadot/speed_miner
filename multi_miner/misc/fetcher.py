@@ -11,7 +11,7 @@ from multi_miner.misc.logging import LOG
 class Fetcher(object):
     _cache = {}
     _MAX_WAIT = 120
-    _TIMEOUT = 5
+    _TIMEOUT = 15
 
     @staticmethod
     def fetch_json_api(url, use_cache_on_failure=False):
