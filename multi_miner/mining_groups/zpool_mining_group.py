@@ -20,6 +20,14 @@ class ZPoolMiningGroupLoader(MiningConfigLoader):
         else:
             raise InvalidMiningConfig("This is probably a bad payout currency. Should be three letters.")
 
+    def describe_algo_blacklist(self):
+        return "A list of algos to not mine. Separate each by a comma."
+
+    def default_parse_algo_blacklist(self, value):
+        if value is None:
+            return set()
+        return {v.lower().strip() for v in value.split(",")}
+
     def describe_algo_data_source(self):
         desc = "Put the desired zpool API with which to calculate profitability. Currently, it doesn't seem one API is best for maximizing profitability and there are only small differences in values between them. Possible values:\n"
         desc += "* \"algo\": This will query the API that gives estimates bucketed by algorithm. Currently, this seems to be the most stable API.\n"
@@ -58,7 +66,7 @@ AlgoInfo = namedtuple("AlgoInfo", ["port", "algo", "prof_rate"])
 
 class ZPoolMiningGroup(AbstractMiningGroup):
     ZPOOL_URL_SUFFIX = ".mine.zpool.ca"
-    BLACKLISTED_ALGOS = set(["scrypt"])
+    ALGO_BLACKLIST = set(["scrypt"])
 
     @staticmethod
     def get_group_config_loader():
@@ -71,13 +79,15 @@ class ZPoolMiningGroup(AbstractMiningGroup):
             config["wallet"],
             algo_data_source=config["algo_data_source"],
             calc_all_algo_data_sources=config["calc_all_algo_data_sources"],
+            algo_blacklist=config["algo_blacklist"],
         )
 
-    def __init__(self, payout_currency, wallet, algo_data_source="status", calc_all_algo_data_sources=False):
+    def __init__(self, payout_currency, wallet, algo_data_source="status", calc_all_algo_data_sources=False, algo_blacklist=None):
         self._payout_currency = payout_currency
         self._wallet = wallet
         self._algo_data_source = algo_data_source
         self._calc_all_algo_data_sources = calc_all_algo_data_sources
+        self._algo_blacklist = (algo_blacklist or set()) | ZPoolMiningGroup.ALGO_BLACKLIST
 
     def _get_zpool_profitability_unit(self, algo):
         if algo == "sha256":
@@ -193,7 +203,7 @@ class ZPoolMiningGroup(AbstractMiningGroup):
         return sorted_algo_info[0].algo
 
     def _filter_blacklisted_algos_from_algo_info(self, algo_info):
-        return [a for a in algo_info if a.algo not in ZPoolMiningGroup.BLACKLISTED_ALGOS]
+        return [a for a in algo_info if a.algo not in self._algo_blacklist]
 
     def _generate_password(self, payout_currency):
         return "c=%s" % (payout_currency.upper())
