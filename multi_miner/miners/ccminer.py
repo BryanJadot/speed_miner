@@ -1,13 +1,14 @@
 import sys
 
 from subprocess import PIPE, Popen
-from threading import Condition, Thread
+from threading import Condition
 
 from multi_miner.miners.abstract_miner import AbstractMiner
 from multi_miner.misc.benchmark import Benchmark, Benchmarker, BenchmarkUnit
 from multi_miner.misc.logging import LOG
 from multi_miner.misc.miner_store import MinerStore
 from multi_miner.misc.process_util import term_proc
+from multi_miner.misc.thread_util import CrashThread
 
 
 class CCMiner(AbstractMiner):
@@ -150,7 +151,7 @@ class CCMiner(AbstractMiner):
                 LOG.debug(line)
 
     def _start_and_return_logging_thread(self, proc_stdout):
-        t = Thread(
+        t = CrashThread(
             target=CCMiner.stdout_printer,
             args=(proc_stdout, str(self), self.share_cond),
             name="%s (%s)" % (str(self), "stdout"),

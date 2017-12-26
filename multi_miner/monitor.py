@@ -1,7 +1,6 @@
 import sys
 
 from subprocess import TimeoutExpired
-from threading import Thread
 from time import time
 
 from multi_miner.misc.logging import LOG
