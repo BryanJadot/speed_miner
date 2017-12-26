@@ -128,7 +128,7 @@ class ZPoolMiningGroup(AbstractMiningGroup):
             reverse=True,
         )
         for v in sorted_currencies:
-            LOG.debug("\tProfitability of %s (%s) = %0.4f", v["name"], v["algo"], _get_prof(v))
+            LOG.debug("    Profitability of %s (%s) = %0.4f", v["name"], v["algo"], _get_prof(v))
 
         return sorted_currencies[0]["algo"]
 

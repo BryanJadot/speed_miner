@@ -45,6 +45,8 @@ class _LOGMeta(type):
 
     def init_logging(cls, log_level):
         assert not cls._logging_inited, "Logger already setup!"
+        logging.getLogger("requests").setLevel(logging.WARNING)
+        logging.getLogger("urllib3").setLevel(logging.WARNING)
         cls._setup_logger(logging.getLogger(), log_level)
         cls._logging_inited = True
 

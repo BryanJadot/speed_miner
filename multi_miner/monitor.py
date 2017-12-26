@@ -37,7 +37,7 @@ class MiningMonitor(object):
                 LOG.info("Switching to \033[92m%s\033[0m...", best_miner)
                 MiningMonitor.switch_miner_and_return_when_started(
                     best_miner, current_miner)
-                LOG.info("Switch complete!")
+                LOG.info("Switch complete! Shares incoming...")
                 current_miner = best_miner
 
             LOG.debug("Sleeping for %i seconds...", check_interval)

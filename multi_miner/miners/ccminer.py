@@ -29,6 +29,7 @@ class CCMiner(AbstractMiner):
            return cls._cached_ccminer_algos
 
         proc = Popen("ccminer -h".split(" "), stdout=PIPE)
+        LOG.debug("Started ccminer -h with pid of %i", proc.pid)
         reading_algos = False
         supported_algos = set()
 
@@ -44,6 +45,8 @@ class CCMiner(AbstractMiner):
             if line.split(b" ")[0] == b"-a,":
                 reading_algos = True
 
+        proc.kill()
+
         cls._cached_ccminer_algos = supported_algos
         return supported_algos
 
@@ -52,6 +55,7 @@ class CCMiner(AbstractMiner):
 
         cmd = "nvidia-smi pmon"
         checker = Popen(cmd.split(" "), stdout=PIPE)
+        LOG.debug("Started nvidia-smi with pid of %i", checker.pid)
 
         for line in checker.stdout:
             if str(self.miner_proc.pid).encode('utf-8') in line:
@@ -129,12 +133,14 @@ class CCMiner(AbstractMiner):
         cmd = self.get_mining_cmd()
         LOG.debug("Executing \"%s\"", cmd)
         self.miner_proc = Popen(cmd.split(" "), stdout=PIPE)
+        LOG.debug("CCminer started with pid of %i", self.miner_proc.pid)
         self.logger_thread = self._start_and_return_logging_thread(self.miner_proc.stdout)
 
     @staticmethod
     def stdout_printer(stdout, name, share_cond):
         for line in stdout:
-            if b"booooo" in line or b"yes!" in line:
+            line = line.decode("UTF-8").strip()
+            if "booooo" in line or "yes!" in line:
                 share_cond.acquire()
                 share_cond.notify_all()
                 share_cond.release()
@@ -153,10 +159,16 @@ class CCMiner(AbstractMiner):
         return t
 
     def stop_mining_and_return_when_stopped(self):
+        LOG.debug("Terminating ccminer (%s)...", self.algo)
         self.miner_proc.terminate()
         self.miner_proc.wait(3)
-        self.miner_proc.kill()
-        self.miner_proc.wait()
+
+        if self.miner_proc.poll() is not None:
+            LOG.warning("Unable to terminate ccminer (%s). Killing process...", self.algo)
+            self.miner_proc.kill()
+            self.miner_proc.wait()
+
+        LOG.debug("Terminating logging thread for ccminer (%s)...", self.algo)
         self.logger_thread.join()
         self.miner_proc = None
         self.logger_thread = None
@@ -182,6 +194,7 @@ class CCMiner(AbstractMiner):
         LOG.info("Benchmark not found for \033[92m%s\033[0m. Benchmarking...", self.algo)
 
         bench_proc = Popen(cmd.split(" "), stdout=PIPE)
+        LOG.debug("CCminer bencher started with pid of %i", bench_proc.pid)
         bench_results = []
         bm = Benchmarker()
 
