@@ -7,6 +7,7 @@ from multi_miner.miners.abstract_miner import AbstractMiner
 from multi_miner.misc.benchmark import Benchmark, Benchmarker, BenchmarkUnit
 from multi_miner.misc.logging import LOG
 from multi_miner.misc.miner_store import MinerStore
+from multi_miner.misc.process_util import term_proc
 
 
 class CCMiner(AbstractMiner):
@@ -45,7 +46,7 @@ class CCMiner(AbstractMiner):
             if line.split(b" ")[0] == b"-a,":
                 reading_algos = True
 
-        proc.kill()
+        term_proc(proc)
 
         cls._cached_ccminer_algos = supported_algos
         return supported_algos
@@ -61,7 +62,7 @@ class CCMiner(AbstractMiner):
             if str(self.miner_proc.pid).encode('utf-8') in line:
                 break
 
-        checker.kill()
+        term_proc(checker)
 
     def return_when_share_is_done(self):
         self.share_cond.acquire()
@@ -160,13 +161,7 @@ class CCMiner(AbstractMiner):
 
     def stop_mining_and_return_when_stopped(self):
         LOG.debug("Terminating ccminer (%s)...", self.algo)
-        self.miner_proc.terminate()
-        self.miner_proc.wait(3)
-
-        if self.miner_proc.poll() is None:
-            LOG.warning("Unable to terminate ccminer (%s). Killing process...", self.algo)
-            self.miner_proc.kill()
-            self.miner_proc.wait()
+        term_proc(self.miner_proc)
 
         LOG.debug("Terminating logging thread for ccminer (%s)...", self.algo)
         self.logger_thread.join()
@@ -211,8 +206,7 @@ class CCMiner(AbstractMiner):
                 if final_bench:
                     break
 
-        bench_proc.kill()
-        bench_proc.wait()
+        term_proc(bench_proc)
 
         MinerStore.set(cache_key, {"unit": final_bench.get_unit().name, "rate": final_bench.get_rate()})
         LOG.info("Benchmark found: %s!", final_bench)

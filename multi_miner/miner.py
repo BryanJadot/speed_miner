@@ -1,7 +1,6 @@
 import logging
 
 from argparse import ArgumentParser
-from subprocess import Popen
 
 from multi_miner.monitor import MiningMonitor
 from multi_miner.mining_groups.zpool_mining_group import ZPoolMiningGroup

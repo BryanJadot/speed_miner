@@ -1,5 +1,3 @@
-from subprocess import PIPE, Popen
-
 from multi_miner.miners.ccminer import CCMiner
 from multi_miner.mining_groups.abstract_mining_group import AbstractMiningGroup
 from multi_miner.misc.config_loader import InvalidMiningConfig, MiningConfigLoader

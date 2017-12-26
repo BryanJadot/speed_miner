@@ -35,10 +35,9 @@ class MiningMonitor(object):
 
             if best_miner != current_miner:
                 LOG.info("Switching to \033[92m%s\033[0m...", best_miner)
-                MiningMonitor.switch_miner_and_return_when_started(
-                    best_miner, current_miner)
-                LOG.info("Switch complete! Shares incoming...")
+                MiningMonitor.switch_miner_and_return_when_started(best_miner, current_miner)
                 current_miner = best_miner
+                LOG.info("Switch complete! Shares incoming...")
 
             LOG.debug("Sleeping for %i seconds...", check_interval)
             try:
