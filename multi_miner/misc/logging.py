@@ -69,7 +69,7 @@ class _LOGMeta(type):
 
     def __getattr__(cls, key):
         # For now, lock down non-logging functions.
-        if key not in cls.all_log_levels:
+        if key not in cls.all_log_levels and key != "exception":
             raise AttributeError(key)
 
         return getattr(cls._get_logger(), key)

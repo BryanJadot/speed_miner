@@ -52,8 +52,7 @@ class MainConfigLoader(MiningConfigLoader):
 
         return parsed_val
 
-
-def mine():
+def _parse_args_and_start_mining():
     parser = ArgumentParser()
     parser.add_argument(
         "-c",
@@ -77,3 +76,10 @@ def mine():
 
     config = config_man.get_config()
     MiningMonitor.mine(mining_group_cls.init_from_config(config))
+
+def start():
+    try:
+        _parse_args_and_start_mining()
+    except:
+        LOG.exception("Uncaught exception caused a program crash!")
+        exit(1)
