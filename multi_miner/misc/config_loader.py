@@ -102,14 +102,14 @@ class MiningConfigLoader(ABC, metaclass=MiningConfigLoaderMeta):
 
         for param in default_parse_params:
             desc_func = param_to_description[param]
-            desc_string = "\n\033[1m%s (default: \"%s\")\033[0m\n\t%s" % (
+            desc_str = "\n\033[1m%s (default: \"%s\")\033[0m\n\t%s" % (
                 param,
                 default_funcs[param](self, None),
                 desc_func(self).replace("\n", "\n\t"),
             )
-            print(string, file=sys.stderr)
+            print(desc_str, file=sys.stderr)
 
-        print("", stream=sys.stderr)
+        print("", file=sys.stderr)
 
     @abstractmethod
     def describe(self):

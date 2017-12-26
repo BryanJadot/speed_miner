@@ -21,9 +21,9 @@ class ZPoolMiningGroupLoader(MiningConfigLoader):
             raise InvalidMiningConfig("This is probably a bad payout currency. Should be three letters.")
 
     def describe_algo_data_source(self):
-        desc = "Put the desired zpool API with which to calculate profitability. Currently, it doesn't seem one API is best for maximizing profitability and there are only small differences in values between them. Possible values:"
-        desc += "* \"algo\": This will query the API that gives estimates and data bucketed by algo. Currently, this seems to be the most stable API."
-        desc += "* \"currency\": This will query the API that gives estimates and data bucketed by currency. Currently, a less stable API."
+        desc = "Put the desired zpool API with which to calculate profitability. Currently, it doesn't seem one API is best for maximizing profitability and there are only small differences in values between them. Possible values:\n"
+        desc += "* \"algo\": This will query the API that gives estimates bucketed by algorithm. Currently, this seems to be the most stable API.\n"
+        desc += "* \"currency\": This will query the API that gives estimates bucketed by currency. Currently, a less stable API."
         return desc
 
     def default_parse_algo_data_source(self, value):
