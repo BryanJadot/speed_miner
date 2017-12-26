@@ -163,7 +163,7 @@ class CCMiner(AbstractMiner):
         self.miner_proc.terminate()
         self.miner_proc.wait(3)
 
-        if self.miner_proc.poll() is not None:
+        if self.miner_proc.poll() is None:
             LOG.warning("Unable to terminate ccminer (%s). Killing process...", self.algo)
             self.miner_proc.kill()
             self.miner_proc.wait()
