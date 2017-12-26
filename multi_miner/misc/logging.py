@@ -15,7 +15,7 @@ class _LogRangeFilter(logging.Filter):
 class _MinerFormatter(logging.Formatter):
     def _get_log_color(self, log_level):
         return {
-            logging.DEBUG: "\033[0m", # Is this color not working??
+            logging.DEBUG: "\033[0m",
             logging.INFO: "\033[94m",
             logging.WARNING: "\033[93m",
             logging.ERROR: "\033[91m",
