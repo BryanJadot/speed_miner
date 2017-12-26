@@ -239,9 +239,9 @@ class ZPoolMiningGroup(AbstractMiningGroup):
     def _get_most_profitable_miner_for_source(self, source):
         LOG.debug("Finding most profitable algo for source \"%s\"..." % source)
         if source == "algo":
-            algo_info = self._get_algo_info_from_currencies()
-        elif source == "currency":
             algo_info = self._get_algo_info_from_statuses()
+        elif source == "currency":
+            algo_info = self._get_algo_info_from_currencies()
 
         algo_info = self._filter_blacklisted_algos_from_algo_info(algo_info)
         algo_to_miners = self._create_miners_for_algo_info(algo_info)
