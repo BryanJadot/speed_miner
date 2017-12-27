@@ -28,7 +28,7 @@ class _MinerFormatter(logging.Formatter):
     def formatMessage(self, record):
         record_dict = record.__dict__
         record_dict.update({"color_fmt": self._get_log_color(record.levelno)})
-        return "%(color_fmt)s[%(module)s @ %(asctime)s - %(levelname)s]\033[0m %(message)s" % record_dict
+        return "%(color_fmt)s[%(asctime)s - %(levelname)s]\033[0m %(message)s" % record_dict
 
 
 class _LOGMeta(type):
