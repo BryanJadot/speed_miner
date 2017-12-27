@@ -80,6 +80,8 @@ def _parse_args_and_start_mining():
 def start():
     try:
         _parse_args_and_start_mining()
+    except SystemExit as ex:
+        raise ex
     except:
         LOG.exception("Uncaught exception caused a program crash!")
         exit(1)

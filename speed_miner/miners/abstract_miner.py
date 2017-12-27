@@ -35,5 +35,9 @@ class AbstractMiner(ABC):
         pass
 
     @abstractmethod
+    def is_mining(self):
+        pass
+
+    @abstractmethod
     def __eq__(self):
         pass

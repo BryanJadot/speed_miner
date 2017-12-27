@@ -140,6 +140,7 @@ class CCMiner(AbstractMiner):
 
     @staticmethod
     def stdout_printer(stdout, name, share_cond):
+        raise Exception()
         for line in stdout:
             line = line.decode("UTF-8").strip()
             if "booooo" in line or "yes!" in line:
@@ -216,6 +217,9 @@ class CCMiner(AbstractMiner):
 
     def wait(self, timeout=None):
         self.miner_proc.wait(timeout=timeout)
+
+    def is_mining(self):
+        return self.miner_proc.poll() is None
 
     def __str__(self):
         return "CCMiner - %s" % self.algo

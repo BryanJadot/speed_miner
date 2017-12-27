@@ -1,13 +1,14 @@
 import sys
 
 from subprocess import TimeoutExpired
-from time import time
+from time import sleep, time
 
 from speed_miner.misc.logging import LOG
 
 
 class MiningMonitor(object):
-    DEFAULT_CHECK_INTERVAL = 60 # seconds
+    CHECK_INTERVAL = 10 # seconds
+    _exit_status = None
 
     @staticmethod
     def switch_miner_and_return_when_started(new_miner, current_miner):
@@ -22,7 +23,7 @@ class MiningMonitor(object):
             current_miner.stop_mining_and_return_when_stopped()
 
     @staticmethod
-    def mine(mining_group, check_interval=DEFAULT_CHECK_INTERVAL):
+    def mine(mining_group):
         LOG.info("Starting miner for \033[92m%s\033[0m!", mining_group)
         current_miner = None
         last_check_time = None
@@ -38,9 +39,21 @@ class MiningMonitor(object):
                 current_miner = best_miner
                 LOG.info("Switch complete! Shares incoming...")
 
-            LOG.debug("Sleeping for %i seconds...", check_interval)
-            try:
-                current_miner.wait(check_interval)
-            except TimeoutExpired as err:
-                # Do nothing - this is normal.
-                pass
+            MiningMonitor._wait(current_miner)
+
+    @staticmethod
+    def _wait(current_miner):
+        start_time = time()
+        LOG.debug("Sleeping for %i seconds...", MiningMonitor.CHECK_INTERVAL)
+
+        # We have to busy wait because of some complex exit scenarios.
+        while time() < start_time + MiningMonitor.CHECK_INTERVAL and current_miner.is_mining():
+            if MiningMonitor._exit_status is not None:
+                LOG.debug("Exiting program with status %i...", MiningMonitor._exit_status)
+                exit(MiningMonitor._exit_status)
+
+            sleep(0.01)
+
+    @staticmethod
+    def mark_monitor_for_exit(status):
+        MiningMonitor._exit_status = status

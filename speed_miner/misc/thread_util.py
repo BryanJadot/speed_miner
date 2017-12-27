@@ -2,6 +2,7 @@ import os
 
 from threading import Thread
 
+from speed_miner.monitor import MiningMonitor
 from speed_miner.misc.logging import LOG
 
 class CrashThread(Thread):
@@ -10,4 +11,4 @@ class CrashThread(Thread):
             super().run()
         except:
             LOG.exception("Thread %s crashed. Crashing program...", self.name)
-            os._exit(1)
+            MiningMonitor.mark_monitor_for_exit(1)
