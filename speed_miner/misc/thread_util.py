@@ -2,7 +2,7 @@ import os
 
 from threading import Thread
 
-from multi_miner.misc.logging import LOG
+from speed_miner.misc.logging import LOG
 
 class CrashThread(Thread):
     def run(self):

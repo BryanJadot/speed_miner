@@ -1,4 +1,4 @@
-from multi_miner.misc.logging import LOG
+from speed_miner.misc.logging import LOG
 
 def term_proc(proc, term_wait_time=3):
     if proc.poll() is None:

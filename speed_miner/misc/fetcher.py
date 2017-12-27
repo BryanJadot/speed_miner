@@ -5,7 +5,7 @@ from requests.exceptions import ReadTimeout
 
 from time import sleep
 
-from multi_miner.misc.logging import LOG
+from speed_miner.misc.logging import LOG
 
 
 class Fetcher(object):
