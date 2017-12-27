@@ -2,14 +2,14 @@ import logging
 
 from argparse import ArgumentParser
 
-from multi_miner.monitor import MiningMonitor
-from multi_miner.mining_groups.zpool_mining_group import ZPoolMiningGroup
-from multi_miner.misc.config_loader import (
+from speed_miner.monitor import MiningMonitor
+from speed_miner.mining_groups.zpool_mining_group import ZPoolMiningGroup
+from speed_miner.misc.config_loader import (
     InvalidMiningConfig,
     MiningConfigLoader,
     MiningConfigManager,
 )
-from multi_miner.misc.logging import LOG
+from speed_miner.misc.logging import LOG
 
 
 class MainConfigLoader(MiningConfigLoader):

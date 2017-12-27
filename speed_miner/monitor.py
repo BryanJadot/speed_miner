@@ -3,7 +3,7 @@ import sys
 from subprocess import TimeoutExpired
 from time import time
 
-from multi_miner.misc.logging import LOG
+from speed_miner.misc.logging import LOG
 
 
 class MiningMonitor(object):

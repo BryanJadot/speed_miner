@@ -1,10 +1,10 @@
 from collections import namedtuple
 
-from multi_miner.miners.ccminer import CCMiner
-from multi_miner.mining_groups.abstract_mining_group import AbstractMiningGroup
-from multi_miner.misc.config_loader import InvalidMiningConfig, MiningConfigLoader
-from multi_miner.misc.fetcher import Fetcher
-from multi_miner.misc.logging import LOG
+from speed_miner.miners.ccminer import CCMiner
+from speed_miner.mining_groups.abstract_mining_group import AbstractMiningGroup
+from speed_miner.misc.config_loader import InvalidMiningConfig, MiningConfigLoader
+from speed_miner.misc.fetcher import Fetcher
+from speed_miner.misc.logging import LOG
 
 
 class ZPoolMiningGroupLoader(MiningConfigLoader):

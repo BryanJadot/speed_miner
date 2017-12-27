@@ -7,7 +7,7 @@ setup(
     packages=find_packages(),
     entry_points={
         'console_scripts': [
-            'miner = multi_miner.miner:start',
+            'miner = speed_miner.miner:start',
         ]
     }
 )

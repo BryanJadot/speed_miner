@@ -3,12 +3,12 @@ import sys
 from subprocess import PIPE, Popen
 from threading import Condition
 
-from multi_miner.miners.abstract_miner import AbstractMiner
-from multi_miner.misc.benchmark import Benchmark, Benchmarker, BenchmarkUnit
-from multi_miner.misc.logging import LOG
-from multi_miner.misc.miner_store import MinerStore
-from multi_miner.misc.process_util import term_proc
-from multi_miner.misc.thread_util import CrashThread
+from speed_miner.miners.abstract_miner import AbstractMiner
+from speed_miner.misc.benchmark import Benchmark, Benchmarker, BenchmarkUnit
+from speed_miner.misc.logging import LOG
+from speed_miner.misc.miner_store import MinerStore
+from speed_miner.misc.process_util import term_proc
+from speed_miner.misc.thread_util import CrashThread
 
 
 class CCMiner(AbstractMiner):
