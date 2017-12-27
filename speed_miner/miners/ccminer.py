@@ -140,7 +140,6 @@ class CCMiner(AbstractMiner):
 
     @staticmethod
     def stdout_printer(stdout, name, share_cond):
-        raise Exception()
         for line in stdout:
             line = line.decode("UTF-8").strip()
             if "booooo" in line or "yes!" in line:
