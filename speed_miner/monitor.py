@@ -7,7 +7,7 @@ from speed_miner.misc.logging import LOG
 
 
 class MiningMonitor(object):
-    CHECK_INTERVAL = 10 # seconds
+    CHECK_INTERVAL = 60 # seconds
     _exit_status = None
 
     @staticmethod
