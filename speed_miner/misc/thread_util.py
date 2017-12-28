@@ -6,6 +6,10 @@ from speed_miner.monitor import MiningMonitor
 from speed_miner.misc.logging import LOG
 
 class CrashThread(Thread):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.dameon = True
+
     def run(self):
         try:
             super().run()

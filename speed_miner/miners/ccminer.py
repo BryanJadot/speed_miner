@@ -156,7 +156,6 @@ class CCMiner(AbstractMiner):
             args=(proc_stdout, str(self), self.share_cond),
             name="%s (%s)" % (str(self), "stdout"),
         )
-        t.daemon = True
         t.start()
         return t
 
