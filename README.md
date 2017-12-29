@@ -1,3 +1,3 @@
-# MultiMiner #
+# SpeedMiner #
 
-### A tool for mining multiple pools ###
+### A tool for mining at lightning speeds! ###
