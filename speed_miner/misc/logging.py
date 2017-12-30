@@ -2,6 +2,8 @@ import inspect
 import logging
 import sys
 
+from collections import namedtuple
+
 
 class _LogRangeFilter(logging.Filter):
     def __init__(self, low, high):
@@ -34,6 +36,8 @@ class _MinerFormatter(logging.Formatter):
 class _LOGMeta(type):
     def __init__(cls, name, bases, dct):
         cls._logging_inited = None
+        cls._total_shares = 0
+        cls._total_accepts = 0
         cls.all_log_levels = {
             "debug": logging.DEBUG,
             "info": logging.INFO,
@@ -66,6 +70,15 @@ class _LOGMeta(type):
         logger.addHandler(stderr_handler)
 
         return logger
+
+    def share(cls, algo, was_accepted, hashrate):
+        cls._total_shares += 1
+        accept_text = "\033[91mrejected\033[0m"
+        if was_accepted:
+            cls._total_accepts += 1
+            accept_text = "\033[92maccepted\033[0m"
+
+        cls.info("Share of %s %s @ %s (%i/%i)" % (algo, accept_text, hashrate, cls._total_accepts, cls._total_shares))
 
     def __getattr__(cls, key):
         # For now, lock down non-logging functions.

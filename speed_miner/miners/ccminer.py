@@ -139,21 +139,23 @@ class CCMiner(AbstractMiner):
         self.logger_thread = self._start_and_return_logging_thread(self.miner_proc.stdout)
 
     @staticmethod
-    def stdout_printer(stdout, name, share_cond):
+    def stdout_printer(stdout, name, share_cond, algo):
         for line in stdout:
             line = line.decode("UTF-8").strip()
             if "booooo" in line or "yes!" in line:
                 share_cond.acquire()
                 share_cond.notify_all()
                 share_cond.release()
-                LOG.info(line)
-            else:
-                LOG.debug(line)
+                speed = line.split(",")[-1].rpartition(" ")[0].strip()
+
+                LOG.share(algo, "yes!" in line, speed)
+
+            LOG.debug(line)
 
     def _start_and_return_logging_thread(self, proc_stdout):
         t = CrashThread(
             target=CCMiner.stdout_printer,
-            args=(proc_stdout, str(self), self.share_cond),
+            args=(proc_stdout, str(self), self.share_cond, self.algo),
             name="%s (%s)" % (str(self), "stdout"),
         )
         t.start()
