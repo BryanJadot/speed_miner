@@ -1,6 +1,8 @@
 from enum import auto, Enum, unique
 from math import ceil, floor
 
+from speed_miner.misc.logging import LOG
+
 @unique
 class BenchmarkUnit(Enum):
     HASH_SEC = 'h/s'
@@ -89,7 +91,7 @@ class Benchmarker(object):
 
     def add_rate(self, rate, unit):
         b = Benchmark(rate, unit)
-        pr("Rate added: %s...\n" % b, prefix="Benchmarker")
+        LOG.debug("Rate added: %s...", b)
 
         if len(self.rates) > 0:
             if b.get_rate() > self.rates[-1].get_rate():
@@ -108,7 +110,6 @@ class Benchmarker(object):
         upper_bound = ceil(Benchmarker.BENCHING_DIR_WINDOW * (.5 + Benchmarker.BENCHING_THRESH))
         lower_bound = floor(Benchmarker.BENCHING_DIR_WINDOW * (.5 - Benchmarker.BENCHING_THRESH))
         num_inc = sum(self.direction[-Benchmarker.BENCHING_DIR_WINDOW:])
-        #print(upper_bound, lower_bound, num_inc)
 
         if num_inc >= lower_bound and num_inc <= upper_bound:
             rates = self.rates[-(Benchmarker.BENCHING_DIR_WINDOW + 1):]

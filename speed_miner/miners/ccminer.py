@@ -196,12 +196,12 @@ class CCMiner(AbstractMiner):
         bm = Benchmarker()
 
         for line in bench_proc.stdout:
-            line = line.strip()
-            split_line = line.split(b" ")
+            line = line.strip().decode("UTF-8")
 
-            if len(split_line) > 4 and split_line[2] == b"Total:":
+            if "Total:" in line:
+                split_line = line.split(" ")
                 bm.add_rate(
-                    float(split_line[3]), BenchmarkUnit.unit_from_str(split_line[4].decode("UTF-8")))
+                    float(split_line[3]), BenchmarkUnit.unit_from_str(split_line[4]))
 
 
                 final_bench = bm.get_benchmark()
