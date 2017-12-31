@@ -221,6 +221,7 @@ class ZPoolMiningGroup(AbstractMiningGroup):
             "lyra2v2": "/usr/local/bin/vertminer",
             "x17": "/usr/local/bin/alexis-ccminer",
             "blakecoin": "/usr/local/bin/alexis-ccminer",
+            "lbry": "/usr/local/bin/alexis-ccminer",
         }
         default_ccminer = "/usr/local/bin/ccminer"
 
