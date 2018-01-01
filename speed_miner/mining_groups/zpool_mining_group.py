@@ -222,6 +222,7 @@ class ZPoolMiningGroup(AbstractMiningGroup):
             "x17": "/usr/local/bin/alexis-ccminer",
             "blakecoin": "/usr/local/bin/alexis-ccminer",
             "lbry": "/usr/local/bin/alexis-ccminer",
+            "skein": "/usr/local/bin/alexis-ccminer",
         }
         default_ccminer = "/usr/local/bin/ccminer"
 

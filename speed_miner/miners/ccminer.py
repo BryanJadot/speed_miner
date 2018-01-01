@@ -73,6 +73,7 @@ class CCMiner(AbstractMiner):
     def _get_intensity_override(self, algo):
         # Hack to set intensity for a specific algo.
         # nist5
+        # skein? 27 may be better than 20
         return None
 
     def _get_run_cmd(
