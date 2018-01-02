@@ -205,8 +205,12 @@ class ZPoolMiningGroup(AbstractMiningGroup):
     def _filter_blacklisted_algos_from_algo_info(self, algo_info):
         return [a for a in algo_info if a.algo not in self._algo_blacklist]
 
-    def _generate_password(self, payout_currency):
-        return "c=%s" % (payout_currency.upper())
+    def _generate_password(self, payout_currency, algo):
+        diff = ""
+        # REMOVE THIS
+        if algo == "skein":
+            diff = ",d=2"
+        return "c=%s%s" % (payout_currency.upper(), diff)
 
     def _create_miners_for_algo_info(self, algo_info):
         LOG.debug("Prepping miners...")
@@ -230,7 +234,7 @@ class ZPoolMiningGroup(AbstractMiningGroup):
             path_to_exec = algo_to_custom_ccminer.get(algo) or default_ccminer
             url = "stratum+tcp://%s%s" % (algo, ZPoolMiningGroup.ZPOOL_URL_SUFFIX)
             port = algo_to_port[algo]
-            password = self._generate_password(self._payout_currency)
+            password = self._generate_password(self._payout_currency, algo)
 
             miners[algo] = CCMiner(path_to_exec, algo, url, port, self._wallet, password)
 
