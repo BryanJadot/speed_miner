@@ -17,7 +17,7 @@ class MiningMonitor(object):
 
         if current_miner:
             # Wait for the current_miner to finish its last share.
-            current_miner.return_when_share_is_done()
+            # current_miner.return_when_share_is_done()
 
             # Now, kill the old mining thread.
             current_miner.stop_mining_and_return_when_stopped()

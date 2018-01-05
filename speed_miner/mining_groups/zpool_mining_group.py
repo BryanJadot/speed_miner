@@ -210,6 +210,8 @@ class ZPoolMiningGroup(AbstractMiningGroup):
         # REMOVE THIS
         if algo == "skein":
             diff = ",d=2"
+        elif algo == "timetravel":
+            diff = ",d=5"
         return "c=%s%s" % (payout_currency.upper(), diff)
 
     def _create_miners_for_algo_info(self, algo_info):
