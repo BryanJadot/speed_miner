@@ -1,6 +1,5 @@
 import sys
 
-from subprocess import PIPE
 from threading import Condition
 
 from speed_miner.miners.abstract_miner import AbstractMiner
@@ -30,7 +29,7 @@ class CCMiner(AbstractMiner):
         if cls._cached_ccminer_algos:
            return cls._cached_ccminer_algos
 
-        proc = start_proc("ccminer -h", stdout=PIPE)
+        proc = start_proc("ccminer -h", pipe_stdout=True)
         reading_algos = False
         supported_algos = set()
 
@@ -54,7 +53,7 @@ class CCMiner(AbstractMiner):
     def return_when_miner_is_using_gpu(self):
         assert self.miner_proc and self.miner_proc.poll() == None, "Process is not running"
 
-        checker = start_proc("nvidia-smi pmon", stdout=PIPE)
+        checker = start_proc("nvidia-smi pmon", pipe_stdout=True)
 
         for line in checker.stdout:
             if str(self.miner_proc.pid).encode('utf-8') in line:
@@ -131,7 +130,7 @@ class CCMiner(AbstractMiner):
 
     def start_and_return(self):
         cmd = self.get_mining_cmd()
-        self.miner_proc = start_proc(cmd, stdout=PIPE)
+        self.miner_proc = start_proc(cmd, pipe_stdout=True)
         self.logger_thread = self._start_and_return_logging_thread(self.miner_proc.stdout)
 
     @staticmethod
@@ -186,8 +185,7 @@ class CCMiner(AbstractMiner):
 
         LOG.info("Benchmark not found for \033[92m%s\033[0m. Benchmarking...", self.algo)
 
-        bench_proc = start_proc(cmd, stdout=PIPE)
-        bench_results = []
+        bench_proc = start_proc(cmd, pipe_stdout=True)
         bm = Benchmarker()
 
         for line in bench_proc.stdout:

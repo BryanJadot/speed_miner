@@ -1,10 +1,14 @@
-from subprocess import Popen
+from subprocess import PIPE, Popen
 
 from speed_miner.misc.logging import LOG
 
 procs = []
 
-def start_proc(cmd, **kwargs):
+def start_proc(cmd, pipe_stdout=False):
+    kwargs = {}
+    if pipe_stdout:
+        kwargs["stdout"] = PIPE
+
     p = Popen(cmd.split(" "), **kwargs)
     procs.append(p)
     LOG.debug("Started \"%s\" with pid of %i", cmd, p.pid)
