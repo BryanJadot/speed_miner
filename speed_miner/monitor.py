@@ -1,6 +1,5 @@
 import sys
 
-from subprocess import TimeoutExpired
 from time import sleep, time
 
 from speed_miner.misc.logging import LOG

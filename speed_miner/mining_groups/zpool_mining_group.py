@@ -1,6 +1,6 @@
 from collections import namedtuple
 
-from speed_miner.miners.ccminer import CCMiner
+from speed_miner.miners import get_supported_algos, get_miner_for_algo
 from speed_miner.mining_groups.abstract_mining_group import AbstractMiningGroup
 from speed_miner.misc.config_loader import InvalidMiningConfig, MiningConfigLoader
 from speed_miner.misc.fetcher import Fetcher
@@ -218,27 +218,14 @@ class ZPoolMiningGroup(AbstractMiningGroup):
         LOG.debug("Prepping miners...")
         miners = {}
         algo_to_port = {a.algo: a.port for a in algo_info}
-        supported_algos = set(algo_to_port.keys())
-
-        # CCMiner
-        supported_ccminer_algos = CCMiner.get_supported_algos() & supported_algos
-
-        algo_to_custom_ccminer = {
-            "lyra2v2": "/usr/local/bin/vertminer",
-            "x17": "/usr/local/bin/alexis-ccminer",
-            "blakecoin": "/usr/local/bin/alexis-ccminer",
-            "lbry": "/usr/local/bin/alexis-ccminer",
-            "skein": "/usr/local/bin/alexis-ccminer",
-        }
-        default_ccminer = "/usr/local/bin/ccminer"
+        supported_ccminer_algos = get_supported_algos() & set(algo_to_port.keys())
 
         for algo in supported_ccminer_algos:
-            path_to_exec = algo_to_custom_ccminer.get(algo) or default_ccminer
             url = "stratum+tcp://%s%s" % (algo, ZPoolMiningGroup.ZPOOL_URL_SUFFIX)
             port = algo_to_port[algo]
             password = self._generate_password(self._payout_currency, algo)
 
-            miners[algo] = CCMiner(path_to_exec, algo, url, port, self._wallet, password)
+            miners[algo] = get_miner_for_algo(algo, url, port, self._wallet, password)
 
         return miners
 

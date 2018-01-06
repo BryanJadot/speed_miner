@@ -1,0 +1,17 @@
+def get_supported_algos():
+    return CCMiner.get_supported_algos()
+
+def get_miner_for_algo(algo, url, port, wallet, password):
+    assert algo in get_supported_algos(), "%s is not a supported algo" % algo
+
+    algo_to_custom_ccminer = {
+        "lyra2v2": "/usr/local/bin/vertminer",
+        "x17": "/usr/local/bin/alexis-ccminer",
+        "blakecoin": "/usr/local/bin/alexis-ccminer",
+        "lbry": "/usr/local/bin/alexis-ccminer",
+        "skein": "/usr/local/bin/alexis-ccminer",
+    }
+    default_ccminer = "/usr/local/bin/ccminer"
+    path_to_exec = algo_to_custom_ccminer.get(algo) or default_ccminer
+
+    return CCminer(path_to_exec, algo, url, port, wallet, password)
