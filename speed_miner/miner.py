@@ -1,5 +1,6 @@
 import logging
 
+from atexit import register
 from argparse import ArgumentParser
 
 from speed_miner.monitor import MiningMonitor
@@ -9,6 +10,7 @@ from speed_miner.misc.config_loader import (
     MiningConfigLoader,
     MiningConfigManager,
 )
+from speed_miner.misc.process_util import term_all_procs
 from speed_miner.misc.logging import LOG
 
 
@@ -85,3 +87,7 @@ def start():
     except:
         LOG.exception("Uncaught exception caused a program crash!")
         exit(1)
+
+@register
+def term():
+    term_all_procs()

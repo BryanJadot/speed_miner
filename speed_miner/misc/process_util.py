@@ -1,4 +1,18 @@
+from subprocess import PIPE, Popen
+
 from speed_miner.misc.logging import LOG
+
+procs = []
+
+def start_proc(cmd, pipe_stdout=False):
+    kwargs = {}
+    if pipe_stdout:
+        kwargs["stdout"] = PIPE
+
+    p = Popen(cmd.split(" "), **kwargs)
+    procs.append(p)
+    LOG.debug("Started \"%s\" with pid of %i", cmd, p.pid)
+    return p
 
 def term_proc(proc, term_wait_time=3):
     if proc.poll() is None:
@@ -12,3 +26,8 @@ def term_proc(proc, term_wait_time=3):
         proc.wait()
 
     LOG.debug("Process %i terminated with %i", proc.pid, proc.poll())
+
+def term_all_procs():
+    for p in procs:
+        if p.poll() is not None:
+            term_proc(p, term_wait_time=1)

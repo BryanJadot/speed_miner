@@ -1,13 +1,12 @@
 import sys
 
-from subprocess import PIPE, Popen
 from threading import Condition
 
 from speed_miner.miners.abstract_miner import AbstractMiner
 from speed_miner.misc.benchmark import Benchmark, Benchmarker, BenchmarkUnit
 from speed_miner.misc.logging import LOG
 from speed_miner.misc.miner_store import MinerStore
-from speed_miner.misc.process_util import term_proc
+from speed_miner.misc.process_util import start_proc, term_proc
 from speed_miner.misc.thread_util import CrashThread
 
 
@@ -30,8 +29,7 @@ class CCMiner(AbstractMiner):
         if cls._cached_ccminer_algos:
            return cls._cached_ccminer_algos
 
-        proc = Popen("ccminer -h".split(" "), stdout=PIPE)
-        LOG.debug("Started ccminer -h with pid of %i", proc.pid)
+        proc = start_proc("ccminer -h", pipe_stdout=True)
         reading_algos = False
         supported_algos = set()
 
@@ -55,9 +53,7 @@ class CCMiner(AbstractMiner):
     def return_when_miner_is_using_gpu(self):
         assert self.miner_proc and self.miner_proc.poll() == None, "Process is not running"
 
-        cmd = "nvidia-smi pmon"
-        checker = Popen(cmd.split(" "), stdout=PIPE)
-        LOG.debug("Started nvidia-smi with pid of %i", checker.pid)
+        checker = start_proc("nvidia-smi pmon", pipe_stdout=True)
 
         for line in checker.stdout:
             if str(self.miner_proc.pid).encode('utf-8') in line:
@@ -134,9 +130,7 @@ class CCMiner(AbstractMiner):
 
     def start_and_return(self):
         cmd = self.get_mining_cmd()
-        LOG.debug("Executing \"%s\"", cmd)
-        self.miner_proc = Popen(cmd.split(" "), stdout=PIPE)
-        LOG.debug("CCminer started with pid of %i", self.miner_proc.pid)
+        self.miner_proc = start_proc(cmd, pipe_stdout=True)
         self.logger_thread = self._start_and_return_logging_thread(self.miner_proc.stdout)
 
     @staticmethod
@@ -191,8 +185,7 @@ class CCMiner(AbstractMiner):
 
         LOG.info("Benchmark not found for \033[92m%s\033[0m. Benchmarking...", self.algo)
 
-        bench_proc = Popen(cmd.split(" "), stdout=PIPE)
-        LOG.debug("CCminer bencher started with pid of %i", bench_proc.pid)
+        bench_proc = start_proc(cmd, pipe_stdout=True)
         bench_results = []
         bm = Benchmarker()
 
