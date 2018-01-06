@@ -1,3 +1,5 @@
+from speed_miner.miners.ccminer import CCMiner
+
 def get_supported_algos():
     return CCMiner.get_supported_algos()
 
@@ -14,4 +16,4 @@ def get_miner_for_algo(algo, url, port, wallet, password):
     default_ccminer = "/usr/local/bin/ccminer"
     path_to_exec = algo_to_custom_ccminer.get(algo) or default_ccminer
 
-    return CCminer(path_to_exec, algo, url, port, wallet, password)
+    return CCMiner(path_to_exec, algo, url, port, wallet, password)

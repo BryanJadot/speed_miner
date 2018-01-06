@@ -29,5 +29,5 @@ def term_proc(proc, term_wait_time=3):
 
 def term_all_procs():
     for p in procs:
-        if p.poll() is not None:
+        if p.poll() is None:
             term_proc(p, term_wait_time=1)
