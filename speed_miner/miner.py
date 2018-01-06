@@ -85,6 +85,9 @@ def start():
     except SystemExit as ex:
         raise ex
     except:
+        if not LOG.inited():
+            LOG.init_logging("ERROR")
+
         LOG.exception("Uncaught exception caused a program crash!")
         exit(1)
 
