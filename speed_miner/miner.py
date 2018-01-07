@@ -17,8 +17,9 @@ from speed_miner.misc.process_util import term_all_procs
 
 class MainConfigLoader(MiningConfigLoader):
     def describe(self):
-        return "Let's mine some coin! Please view README.md for more information on how to set up \
-            this program."
+        desc = "Let's mine some coin! Please view README.md for more information on how to set up "
+        desc += "this program."
+        return desc
 
     def describe_group(self):
         return "Possible values:\n* \"zpool\": This group will multimine zpool.ca"
