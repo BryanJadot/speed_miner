@@ -41,5 +41,5 @@ class Fetcher(object):
 
         try:
             return resp.json()
-        except ValueError as err:
+        except ValueError:
             return None

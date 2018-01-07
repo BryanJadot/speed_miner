@@ -199,7 +199,7 @@ class ZPoolMiningGroup(AbstractMiningGroup):
             AlgoInfo(
                 algo=s["name"],
                 prof_rate=float(s["estimate_current"]) * 1000.0,
-                port=s["port"]
+                port=s["port"],
             )
             for s in statuses
         ]
