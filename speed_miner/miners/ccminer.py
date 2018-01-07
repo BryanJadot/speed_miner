@@ -1,7 +1,7 @@
 from threading import Condition
 
 from speed_miner.miners.abstract_miner import AbstractMiner
-from speed_miner.misc.benchmark import Benchmark, Benchmarker, BenchmarkUnit
+from speed_miner.misc.benchmark import Benchmarker, Rate
 from speed_miner.misc.logging import LOG
 from speed_miner.misc.miner_store import MinerStore
 from speed_miner.misc.process_util import start_proc, term_proc
@@ -163,6 +163,28 @@ class CCMiner(AbstractMiner):
         self.miner_proc = None
         self.logger_thread = None
 
+    def _fix_units(self, unit):
+        unit = unit.lower().strip()
+
+        if unit == "h/s":
+            return "h/s"
+        elif unit == "kh/s":
+            return "kh/s"
+        elif unit == "mh/s":
+            return "Mh/s"
+        elif unit == "gh/s":
+            return "Gh/s"
+        elif unit == "th/s":
+            return "Th/s"
+        elif unit == "ph/s":
+            return "Ph/s"
+        elif unit == "sol/s":
+            return "sol/s"
+        elif unit == "ksol/s":
+            return "ksol/s"
+        else:
+            raise Exception("Unsupported unit type %s" % unit)
+
     def benchmark(self):
         cmd = self._get_run_cmd(
             self.path_to_exec,
@@ -174,10 +196,10 @@ class CCMiner(AbstractMiner):
             kwargs={"--benchmark": "", "--no-color": ""}
         )
         LOG.debug("Benchmarking \033[92m%s\033[0m...", self.algo)
-        cache_key = "BENCH%s" % (cmd)
+        cache_key = "BENCHHR%s" % (cmd)
         cached_benchmark = MinerStore.get(cache_key)
         if cached_benchmark:
-            b = Benchmark(float(cached_benchmark["rate"]), BenchmarkUnit[cached_benchmark["unit"]])
+            b = Rate(cached_benchmark)
             LOG.debug("Benchmark found in cache: %s!", b)
             return b
 
@@ -191,20 +213,20 @@ class CCMiner(AbstractMiner):
 
             if "Total:" in line:
                 split_line = line.split(" ")
-                bm.add_rate(
-                    float(split_line[3]), BenchmarkUnit.unit_from_str(split_line[4]))
+                rate_str = "%s %s" % (split_line[3], self._fix_units(split_line[4]))
+                hr = Rate(rate_str)
+                bm.add_rate(hr)
 
-                final_bench = bm.get_benchmark()
-                if final_bench:
+                final_hashrate = bm.get_benchmark()
+                if final_hashrate:
                     break
 
         term_proc(bench_proc)
 
-        stored_value = {"unit": final_bench.get_unit().name, "rate": final_bench.get_rate()}
-        MinerStore.set(cache_key, stored_value)
-        LOG.info("Benchmark found: %s!", final_bench)
+        MinerStore.set(cache_key, str(final_hashrate))
+        LOG.info("Benchmark found: %s!", final_hashrate)
 
-        return final_bench
+        return final_hashrate
 
     def wait(self, timeout=None):
         self.miner_proc.wait(timeout=timeout)

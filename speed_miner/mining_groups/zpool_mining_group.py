@@ -108,73 +108,73 @@ class ZPoolMiningGroup(AbstractMiningGroup):
 
     def _get_zpool_profitability_unit(self, algo):
         if algo == "sha256":
-            return "ph"
+            return "Ph"
         elif algo == "scrypt":
-            return "gh"
+            return "Gh"
         elif algo == "equihash":
-            return "ks"
+            return "ksol"
         elif algo == "neoscrypt":
-            return "mh"
+            return "Mh"
         elif algo == "quark":
-            return "gh"
+            return "Gh"
         elif algo == "blake2s":
-            return "gh"
+            return "Gh"
         elif algo == "blakecoin":
-            return "gh"
+            return "Gh"
         elif algo == "xevan":
-            return "mh"
+            return "Mh"
         elif algo == "decred":
-            return "gh"
+            return "Gh"
         elif algo == "hsr":
-            return "mh"
+            return "Mh"
         elif algo == "x17":
-            return "mh"
+            return "Mh"
         elif algo == "x11":
-            return "gh"
+            return "Gh"
         elif algo == "phi":
-            return "mh"
+            return "Mh"
         elif algo == "keccak":
-            return "gh"
+            return "Gh"
         elif algo == "sib":
-            return "mh"
+            return "Mh"
         elif algo == "qubit":
-            return "gh"
+            return "Gh"
         elif algo == "bitcore":
-            return "mh"
+            return "Mh"
         elif algo == "yescrypt":
-            return "kh"
+            return "Kh"
         elif algo == "x11evo":
-            return "mh"
+            return "Mh"
         elif algo == "c11":
-            return "mh"
+            return "Mh"
         elif algo == "veltor":
-            return "mh"
+            return "Mh"
         elif algo == "polytimos":
-            return "mh"
+            return "Mh"
         elif algo == "skunk":
-            return "mh"
+            return "Mh"
         elif algo == "nist5":
-            return "mh"
+            return "Mh"
         elif algo == "lyra2v2":
-            return "mh"
+            return "Mh"
         elif algo == "groestl":
-            return "mh"
+            return "Mh"
         elif algo == "tribus":
-            return "mh"
+            return "Mh"
         elif algo == "timetravel":
-            return "mh"
+            return "Mh"
         elif algo == "lbry":
-            return "mh"
+            return "Mh"
         elif algo == "skein":
-            return "mh"
+            return "Mh"
         elif algo == "x13":
-            return "mh"
+            return "Mh"
         elif algo == "myr-gr":
-            return "mh"
+            return "Mh"
         elif algo == "x14":
-            return "mh"
+            return "Mh"
         elif algo == "lyra2z":
-            return "mh"
+            return "Mh"
         else:
             raise Exception("Unsupported algo: %s" % algo)
 
@@ -209,12 +209,12 @@ class ZPoolMiningGroup(AbstractMiningGroup):
         return self._status_to_algo_info(
             list(Fetcher.fetch_json_api("http://www.zpool.ca/api/status").values()))
 
-    def _fetch_most_profitable_algo(self, algo_info, algo_to_benchmarks):
+    def _get_most_profitable_algo(self, algo_info, algo_to_benchmarks):
         def _get_prof(a):
-            return algo_to_benchmarks[a.algo].get_24_hour_profitability(
-                a.prof_rate,
-                self._get_zpool_profitability_unit(a.algo),
-            )
+            prof_str = "%s mbtc/%s*s/day" % (
+                a.prof_rate, self._get_zpool_profitability_unit(a.algo))
+
+            return algo_to_benchmarks[a.algo].get_mbtc_per_day(prof_str)
 
         sorted_algo_info = sorted(
             [a for a in algo_info if a.algo in algo_to_benchmarks],
@@ -222,7 +222,7 @@ class ZPoolMiningGroup(AbstractMiningGroup):
             reverse=True,
         )
         for a in sorted_algo_info:
-            LOG.debug("    Profitability of %s = %0.4f", a.algo, _get_prof(a))
+            LOG.debug("    Profitability of %s = %s", a.algo, _get_prof(a))
 
         return sorted_algo_info[0].algo
 
@@ -267,7 +267,7 @@ class ZPoolMiningGroup(AbstractMiningGroup):
         algo_info = self._filter_blacklisted_algos_from_algo_info(algo_info)
         algo_to_miners = self._create_miners_for_algo_info(algo_info)
         algo_to_benchmarks = self._get_benchmarks(algo_to_miners)
-        best_algo = self._fetch_most_profitable_algo(algo_info, algo_to_benchmarks)
+        best_algo = self._get_most_profitable_algo(algo_info, algo_to_benchmarks)
         return algo_to_miners[best_algo]
 
     def get_most_profitable_miner(self):

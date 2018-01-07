@@ -1,122 +1,126 @@
-from enum import Enum, unique
 from math import ceil, floor
+from pint import UnitRegistry
 
 from speed_miner.misc.logging import LOG
 
 
-@unique
-class BenchmarkUnit(Enum):
-    HASH_SEC = 'h/s'
-    KILO_HASH_SEC = 'kh/s'
-    MEGA_HASH_SEC = 'mh/s'
-    GIGA_HASH_SEC = 'gh/s'
-    TERA_HASH_SEC = 'th/s'
-    SOL_SEC = 'sol/s'
+class Rate(object):
 
-    @staticmethod
-    def unit_from_str(unit_str):
-        unit_str = unit_str.strip().lower()
+    def __init__(self, rate_str):
+        self._quantity = Benchmarker.ureg(rate_str)
 
-        if unit_str == "h/s":
-            return BenchmarkUnit.HASH_SEC
-        if unit_str == "kh/s":
-            return BenchmarkUnit.KILO_HASH_SEC
-        elif unit_str == "mh/s":
-            return BenchmarkUnit.MEGA_HASH_SEC
-        elif unit_str == "gh/s":
-            return BenchmarkUnit.GIGA_HASH_SEC
-        elif unit_str == "th/s":
-            return BenchmarkUnit.TERA_HASH_SEC
-        elif unit_str == "sol/s":
-            return BenchmarkUnit.SOL_SEC
+        assert self._quantity.dimensionality == "[hash] / [time]" or \
+            self._quantity.dimensionality == "[solution] / [time]"
+
+    def get_mbtc_per_day(self, profitability):
+        profitability = Benchmarker.ureg(profitability).to_base_units()
+        assert profitability.dimensionality == "[currency] / [hash]" or \
+            profitability.dimensionality == "[currency] / [solution]", \
+            "Bad dimensionality: %s" % profitability.dimensionality
+        return (self._quantity * profitability).to("mbtc / day").magnitude
+
+    def to_base_units(self, *args, **kwargs):
+        return Rate(str(self._quantity.to_base_units(*args, **kwargs)))
+
+    def __add__(self, other):
+        return Rate(str(self._quantity.__add__(other._quantity)))
+
+    def __eq__(self, other):
+        if other is None:
+            return False
+        return self._quantity.__eq__(other._quantity)
+
+    def __floordiv__(self, other):
+        if isinstance(other, Rate):
+            rate = self._quantity.__floordiv__(other._quantity)
         else:
-            raise Exception("Unsupported unit: %s" % unit_str)
+            rate = self._quantity.__floordiv__(other)
+
+        return Rate(str(rate))
+
+    def __ne__(self, other):
+        if other is None:
+            return True
+        return self._quantity.__ne__(other._quantity)
+
+    def __lt__(self, other):
+        return self._quantity.__lt__(other._quantity)
+
+    def __le__(self, other):
+        return self._quantity.__le__(other._quantity)
+
+    def __gt__(self, other):
+        return self._quantity.__gt__(other._quantity)
+
+    def __ge__(self, other):
+        return self._quantity.__ge__(other._quantity)
+
+    def __radd__(self, other):
+        if other == 0:
+            return self
+        else:
+            return self.__add__(other)
 
     def __str__(self):
-        return self.value
+        return str(self._quantity)
 
+    def __truediv__(self, other):
+        if isinstance(other, Rate):
+            rate = self._quantity.__truediv__(other._quantity)
+        else:
+            rate = self._quantity.__truediv__(other)
 
-class Benchmark(object):
-    def __init__(self, rate, unit):
-        assert unit in BenchmarkUnit, "Unit is not a proper benchmarking unit"
-
-        if unit == BenchmarkUnit.HASH_SEC:
-            rate = rate / 1000000
-            unit = BenchmarkUnit.MEGA_HASH_SEC
-        elif unit == BenchmarkUnit.KILO_HASH_SEC:
-            rate = rate / 1000
-            unit = BenchmarkUnit.MEGA_HASH_SEC
-        elif unit == BenchmarkUnit.GIGA_HASH_SEC:
-            rate = rate * 1000
-            unit = BenchmarkUnit.MEGA_HASH_SEC
-        elif unit == BenchmarkUnit.TERA_HASH_SEC:
-            rate = rate * 1000000
-            unit = BenchmarkUnit.MEGA_HASH_SEC
-
-        self.rate = rate
-        self.unit = unit
-
-    def get_rate(self):
-        return self.rate
-
-    def get_unit(self):
-        return self.unit
-
-    def get_24_hour_profitability(self, profitability, unit):
-        # Profitability is usually mBTC / (rate)
-        # Convert to the standard rate of sol or mh.
-        if unit == "kh":
-            profitability = profitability * 1000
-        elif unit == "gh" or unit == "ks":
-            profitability = profitability / 1000
-        elif unit == "th" or unit == "ms":
-            profitability = profitability / 1000000
-        elif unit == "ph":
-            profitability = profitability / 1000000000
-        elif unit != "s" and unit != "mh":
-            raise Exception("Unsupported unit: %s" % unit)
-
-        return profitability * self.rate
-
-    def __str__(self):
-        return "%0.2f %s" % (self.get_rate(), self.get_unit())
+        return Rate(str(rate))
 
 
 class Benchmarker(object):
-    BENCHING_DIR_WINDOW = 10
-    BENCHING_THRESH = .1
 
-    def __init__(self):
-        self.rates = []
-        self.direction = []
+    @staticmethod
+    def init_unit_reg():
+        ureg = UnitRegistry()
 
-    def add_rate(self, rate, unit):
-        b = Benchmark(rate, unit)
-        LOG.debug("Rate added: %s...", b)
+        ureg.define("hash = [hash] = h")
+        ureg.define("solution = [solution] = sol")
+        ureg.define("bitcoin = [currency] = btc")
 
-        if len(self.rates) > 0:
-            if b.get_rate() > self.rates[-1].get_rate():
-                self.direction.append(1)
-            elif b.get_rate() == self.rates[-1].get_rate():
-                self.direction.append(0.5)
+        ureg.default_format = '~'
+
+        Benchmarker.ureg = ureg
+
+    def __init__(self, benching_thresh=.1, benching_dir_window=10):
+
+        self._rates = []
+        self._direction = []
+
+        self._benching_thresh = benching_thresh
+        self._benching_dir_window = benching_dir_window
+
+    def add_rate(self, rate):
+        LOG.debug("Rate added: %s...", rate)
+
+        if len(self._rates) > 0:
+            if rate > self._rates[-1]:
+                self._direction.append(1)
+            elif rate == self._rates[-1]:
+                self._direction.append(0.5)
             else:
-                self.direction.append(0)
+                self._direction.append(0)
 
-        self.rates.append(b)
+        self._rates.append(rate)
 
     def get_benchmark(self):
-        if len(self.direction) < Benchmarker.BENCHING_DIR_WINDOW:
+        if len(self._direction) < self._benching_dir_window:
             return None
 
-        upper_bound = ceil(Benchmarker.BENCHING_DIR_WINDOW * (.5 + Benchmarker.BENCHING_THRESH))
-        lower_bound = floor(Benchmarker.BENCHING_DIR_WINDOW * (.5 - Benchmarker.BENCHING_THRESH))
-        num_inc = sum(self.direction[-Benchmarker.BENCHING_DIR_WINDOW:])
+        upper_bound = ceil(self._benching_dir_window * (0.5 + self._benching_thresh))
+        lower_bound = floor(self._benching_dir_window * (0.5 - self._benching_thresh))
+        num_inc = sum(self._direction[-self._benching_dir_window:])
 
         if num_inc >= lower_bound and num_inc <= upper_bound:
-            rates = self.rates[-(Benchmarker.BENCHING_DIR_WINDOW + 1):]
-            avg = sum((r.get_rate() for r in rates)) / len(rates)
-            unit = rates[0].get_unit()
-            b = Benchmark(avg, unit)
-            return b
+            rates = self._rates[-(self._benching_dir_window + 1):]
+            return (sum(rates) / len(rates)).to_base_units()
         else:
             return None
+
+
+Benchmarker.init_unit_reg()
