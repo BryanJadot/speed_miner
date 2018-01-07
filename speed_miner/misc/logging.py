@@ -46,6 +46,8 @@ class _LOGMeta(type):
             "critical": logging.CRITICAL,
         }
 
+        # Temporarily set output to DEBUG
+        logging.getLogger().setLevel(logging.DEBUG)
 
     def init_logging(cls, log_level):
         assert not cls._logging_inited, "Logger already setup!"
@@ -80,9 +82,6 @@ class _LOGMeta(type):
 
         cls.info("Share of %s %s @ %s (%i/%i)" % (algo, accept_text, hashrate, cls._total_accepts, cls._total_shares))
 
-    def inited(cls):
-        return cls._logging_inited
-
     def __getattr__(cls, key):
         # For now, lock down non-logging functions.
         if key not in cls.all_log_levels and key != "exception":
@@ -91,7 +90,8 @@ class _LOGMeta(type):
         return getattr(cls._get_logger(), key)
 
     def _get_logger(cls):
-        assert cls.inited(), "Need to call init_logging first"
+        if not cls._logging_inited:
+            logging.getLogger().warning("LOG was called before it was inited!")
 
         stack = inspect.stack()
         name = inspect.getmodule(stack[2][0]).__name__

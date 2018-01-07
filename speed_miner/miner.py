@@ -72,7 +72,6 @@ def _parse_args_and_start_mining():
 
     main_config_loader = MainConfigLoader()
     config_man.load_from_file(main_config_loader, args.config_path)
-
     LOG.init_logging(config_man.get_config()["log_level"])
 
     mining_group_cls = config_man.get_config()["group"]
@@ -99,8 +98,5 @@ def start():
     except SystemExit as ex:
         raise ex
     except:
-        if not LOG.inited():
-            LOG.init_logging("ERROR")
-
         LOG.exception("Uncaught exception caused a program crash!")
         exit(1)
