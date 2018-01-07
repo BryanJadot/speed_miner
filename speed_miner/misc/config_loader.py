@@ -46,8 +46,10 @@ class MiningConfigLoaderMeta(ABCMeta):
         descs = set(desc_funcs.keys())
         parses = set(parse_funcs.keys()) | set(default_parse_funcs.keys())
 
-        assert descs - parses == set(), "Missing parse function(s) for params: %s" % ", ".join(descs - parses)
-        assert parses - descs == set(), "Missing describe function(s) for params: %s" % ", ".join(parses - descs)
+        assert descs - parses == set(), \
+            "Missing parse function(s) for params: %s" % ", ".join(descs - parses)
+        assert parses - descs == set(), \
+            "Missing describe function(s) for params: %s" % ", ".join(parses - descs)
 
 
 class MiningConfigLoader(ABC, metaclass=MiningConfigLoaderMeta):
@@ -78,7 +80,8 @@ class MiningConfigLoader(ABC, metaclass=MiningConfigLoaderMeta):
         parse_funcs = self._get_prefix_funcs("parse_")
         missing_keys = set(parse_funcs.keys()) - set(json_dict.keys())
         if len(missing_keys) > 0:
-            raise InvalidMiningConfig("Missing required config parameter(s) - %s" % ", ".join(missing_keys))
+            raise InvalidMiningConfig(
+                "Missing required config parameter(s) - %s" % ", ".join(missing_keys))
 
         parse_funcs.update(self._get_prefix_funcs("default_parse_"))
         return {

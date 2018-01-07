@@ -1,7 +1,8 @@
-from enum import auto, Enum, unique
+from enum import Enum, unique
 from math import ceil, floor
 
 from speed_miner.misc.logging import LOG
+
 
 @unique
 class BenchmarkUnit(Enum):

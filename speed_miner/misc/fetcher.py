@@ -1,5 +1,3 @@
-import sys
-
 from requests import get as rget
 from requests.exceptions import ReadTimeout
 
@@ -28,14 +26,14 @@ class Fetcher(object):
 
             num_tries += 1
             sleep_time = min(2**num_tries - 1, Fetcher._MAX_WAIT)
-            LOG.warning("Bad response from '%s\'! Backing off for %i second(s)...", url, sleep_time),
+            LOG.warning("Bad response from '%s\'! Backing off for %i second(s)...", url, sleep_time)
             sleep(sleep_time)
 
     @staticmethod
     def _try_fetching_resp(url):
         try:
             resp = rget(url, timeout=Fetcher._TIMEOUT)
-        except ReadTimeout as err:
+        except ReadTimeout as e:
             return None
 
         if resp.status_code != 200:

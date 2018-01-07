@@ -1,5 +1,3 @@
-import sys
-
 from threading import Condition
 
 from speed_miner.miners.abstract_miner import AbstractMiner
@@ -27,7 +25,7 @@ class CCMiner(AbstractMiner):
     @classmethod
     def get_supported_algos(cls):
         if cls._cached_ccminer_algos:
-           return cls._cached_ccminer_algos
+            return cls._cached_ccminer_algos
 
         proc = start_proc("ccminer -h", pipe_stdout=True)
         reading_algos = False
@@ -51,7 +49,7 @@ class CCMiner(AbstractMiner):
         return supported_algos
 
     def return_when_miner_is_using_gpu(self):
-        assert self.miner_proc and self.miner_proc.poll() == None, "Process is not running"
+        assert self.miner_proc and self.miner_proc.poll() is None, "Process is not running"
 
         checker = start_proc("nvidia-smi pmon", pipe_stdout=True)
 
@@ -87,10 +85,10 @@ class CCMiner(AbstractMiner):
         kwarg_str = ""
         if kwargs:
             # Let's keep the order of the kwargs always consistent.
-            for k,v in iter(sorted(list(kwargs.items()))):
+            for k, v in iter(sorted(list(kwargs.items()))):
                 kwarg_str += " %s" % k
                 if v:
-                    kwarg_str += " %s" %v
+                    kwarg_str += " %s" % v
 
         run_args = {
             "exec": path_to_exec,
@@ -196,14 +194,14 @@ class CCMiner(AbstractMiner):
                 bm.add_rate(
                     float(split_line[3]), BenchmarkUnit.unit_from_str(split_line[4]))
 
-
                 final_bench = bm.get_benchmark()
                 if final_bench:
                     break
 
         term_proc(bench_proc)
 
-        MinerStore.set(cache_key, {"unit": final_bench.get_unit().name, "rate": final_bench.get_rate()})
+        stored_value = {"unit": final_bench.get_unit().name, "rate": final_bench.get_rate()}
+        MinerStore.set(cache_key, stored_value)
         LOG.info("Benchmark found: %s!", final_bench)
 
         return final_bench

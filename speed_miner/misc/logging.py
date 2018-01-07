@@ -2,8 +2,6 @@ import inspect
 import logging
 import sys
 
-from collections import namedtuple
-
 
 class _LogRangeFilter(logging.Filter):
     def __init__(self, low, high):
@@ -80,7 +78,8 @@ class _LOGMeta(type):
             cls._total_accepts += 1
             accept_text = "\033[92maccepted\033[0m"
 
-        cls.info("Share of %s %s @ %s (%i/%i)" % (algo, accept_text, hashrate, cls._total_accepts, cls._total_shares))
+        str_replacements = (algo, accept_text, hashrate, cls._total_accepts, cls._total_shares)
+        cls.info("Share of %s %s @ %s (%i/%i)" % str_replacements)
 
     def __getattr__(cls, key):
         # For now, lock down non-logging functions.

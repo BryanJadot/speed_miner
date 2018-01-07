@@ -1,7 +1,9 @@
 from speed_miner.miners.ccminer import CCMiner
 
+
 def get_supported_algos():
     return CCMiner.get_supported_algos()
+
 
 def get_miner_for_algo(algo, url, port, wallet, password):
     assert algo in get_supported_algos(), "%s is not a supported algo" % algo

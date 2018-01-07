@@ -18,7 +18,9 @@ class ZPoolMiningGroupLoader(MiningConfigLoader):
         if len(value) == 3:
             return str(value)
         else:
-            raise InvalidMiningConfig("This is probably a bad payout currency. Should be three letters.")
+            raise InvalidMiningConfig(
+                "This is probably a bad payout currency. Should be three letters."
+            )
 
     def describe_algo_blacklist(self):
         return "A list of algos to not mine. Separate each by a comma."
@@ -29,9 +31,13 @@ class ZPoolMiningGroupLoader(MiningConfigLoader):
         return {v.lower().strip() for v in value.split(",")}
 
     def describe_algo_data_source(self):
-        desc = "Put the desired zpool API with which to calculate profitability. Currently, it doesn't seem one API is best for maximizing profitability and there are only small differences in values between them. Possible values:\n"
-        desc += "* \"algo\": This will query the API that gives estimates bucketed by algorithm. Currently, this seems to be the most stable API.\n"
-        desc += "* \"currency\": This will query the API that gives estimates bucketed by currency. Currently, a less stable API."
+        desc = "Put the desired zpool API with which to calculate profitability. "
+        desc += "Currently, it doesn't seem one API is best for maximizing profitability and "
+        desc += "there are only small differences in values between them. Possible values:\n"
+        desc += "* \"algo\": This will query the API that gives estimates bucketed by algorithm. "
+        desc += "Currently, this seems to be the most stable API.\n"
+        desc += "* \"currency\": This will query the API that gives estimates bucketed by "
+        desc += "currency. Currently, a less stable API."
         return desc
 
     def default_parse_algo_data_source(self, value):
@@ -46,7 +52,12 @@ class ZPoolMiningGroupLoader(MiningConfigLoader):
         return value
 
     def describe_calc_all_algo_data_sources(self):
-        return "This can be \"true\" or \"false\". If \"true\", then we will calculate profitability from all data sources and print them out. This will not affect which data source gets used, this is merely to allow comparisons of different data sources."
+        desc = "This can be \"true\" or \"false\". If \"true\", then we will calculate "
+        desc += "profitability from all data sources and print them out. This will not "
+        desc += "affect which data source gets used, this is merely to allow "
+        desc += "comparisons of different data sources."
+
+        return desc
 
     def default_parse_calc_all_algo_data_sources(self, value):
         if value is None:
@@ -82,7 +93,13 @@ class ZPoolMiningGroup(AbstractMiningGroup):
             algo_blacklist=config["algo_blacklist"],
         )
 
-    def __init__(self, payout_currency, wallet, algo_data_source="status", calc_all_algo_data_sources=False, algo_blacklist=None):
+    def __init__(
+            self,
+            payout_currency,
+            wallet,
+            algo_data_source="status",
+            calc_all_algo_data_sources=False,
+            algo_blacklist=None):
         self._payout_currency = payout_currency
         self._wallet = wallet
         self._algo_data_source = algo_data_source
@@ -167,23 +184,30 @@ class ZPoolMiningGroup(AbstractMiningGroup):
 
         for c in currencies:
             if c["algo"] not in algo_info_dict:
-                algo_info_dict[c["algo"]] = AlgoInfo(algo=c["algo"], prof_rate=float(c["estimate"]), port=c["port"])
+                algo_info_dict[c["algo"]] = AlgoInfo(
+                    algo=c["algo"], prof_rate=float(c["estimate"]), port=c["port"])
 
         return list(algo_info_dict.values())
 
     def _get_algo_info_from_currencies(self):
         LOG.debug("Fetching currency info...")
-        return self._currency_to_algo_info(list(Fetcher.fetch_json_api("http://www.zpool.ca/api/currencies").values()))
+        return self._currency_to_algo_info(
+            list(Fetcher.fetch_json_api("http://www.zpool.ca/api/currencies").values()))
 
     def _status_to_algo_info(self, statuses):
         return [
-            AlgoInfo(algo=s["name"], prof_rate=float(s["estimate_current"]) * 1000.0, port=s["port"])
+            AlgoInfo(
+                algo=s["name"],
+                prof_rate=float(s["estimate_current"]) * 1000.0,
+                port=s["port"]
+            )
             for s in statuses
         ]
 
     def _get_algo_info_from_statuses(self):
         LOG.debug("Fetching algo statuses...")
-        return self._status_to_algo_info(list(Fetcher.fetch_json_api("http://www.zpool.ca/api/status").values()))
+        return self._status_to_algo_info(
+            list(Fetcher.fetch_json_api("http://www.zpool.ca/api/status").values()))
 
     def _fetch_most_profitable_algo(self, algo_info, algo_to_benchmarks):
         def _get_prof(a):

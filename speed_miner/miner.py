@@ -1,5 +1,4 @@
 import atexit
-import logging
 import os
 import signal
 
@@ -18,7 +17,8 @@ from speed_miner.misc.process_util import term_all_procs
 
 class MainConfigLoader(MiningConfigLoader):
     def describe(self):
-        return "Let's mine some coin! Please view README.md for more information on how to set up this program."
+        return "Let's mine some coin! Please view README.md for more information on how to set up \
+            this program."
 
     def describe_group(self):
         return "Possible values:\n* \"zpool\": This group will multimine zpool.ca"
@@ -36,17 +36,22 @@ class MainConfigLoader(MiningConfigLoader):
         return str(value)
 
     def describe_log_level(self, value):
-        log_desc = "Define a lower threshold of log values to output. Logs of a level below this value will not be outputed. Possible values in ascending order:\n"
+        log_desc = "Define a lower threshold of log values to output. "
+        log_desc += "Logs of a level below this value will not be outputed. "
+        log_desc += "Possible values in ascending order:\n"
         log_desc += "* \"DEBUG\": This level show all output values. Noisy but informative.\n"
         log_desc += "* \"INFO\": Show high-level information about the operation of the program.\n"
-        log_desc += "* \"WARNING\": Show warnings. These will be logs warning of potential problems that may occur, but haven't affected operation of the program.\n"
-        log_desc += "* \"ERROR\": Show errors. These are issues that prevented some functionality of the program.\n"
-        log_desc += "* \"CRITICAL\": Show critical and worse errors. These are issues that prevented the program from continuing."
+        log_desc += "* \"WARNING\": Show warnings. These will be logs warning of potential "
+        log_desc += "problems that may occur, but haven't affected operation of the program.\n"
+        log_desc += "* \"ERROR\": Show errors. These are issues that prevented some functionality "
+        log_desc += "of the program.\n"
+        log_desc += "* \"CRITICAL\": Show critical and worse errors. These are issues that "
+        log_desc += "prevented the program from continuing."
 
     def default_parse_log_level(self, value):
         # If one wasn't specied, return a default value.
         if value is None:
-            return log_levels["info"]
+            return LOG.all_log_levels["info"]
 
         parsed_val = LOG.all_log_levels.get(value.lower())
 
@@ -55,6 +60,7 @@ class MainConfigLoader(MiningConfigLoader):
             raise InvalidMiningConfig("%s is not a valid log level." % value)
 
         return parsed_val
+
 
 def _parse_args_and_start_mining():
     _init_exit_handling()
@@ -81,10 +87,12 @@ def _parse_args_and_start_mining():
     config = config_man.get_config()
     MiningMonitor.mine(mining_group_cls.init_from_config(config))
 
+
 def _signal_handler(signum, frame):
     LOG.debug('Signal handler called with signal %i', signum)
     term_all_procs()
     os._exit(128 + signum)
+
 
 def _init_exit_handling():
     atexit.register(term_all_procs)
@@ -92,11 +100,12 @@ def _init_exit_handling():
     signal.signal(signal.SIGTERM, _signal_handler)
     signal.signal(signal.SIGQUIT, _signal_handler)
 
+
 def start():
     try:
         _parse_args_and_start_mining()
     except SystemExit as ex:
         raise ex
-    except:
+    except Exception:
         LOG.exception("Uncaught exception caused a program crash!")
         exit(1)

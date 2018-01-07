@@ -1,12 +1,10 @@
-import sys
-
 from time import sleep, time
 
 from speed_miner.misc.logging import LOG
 
 
 class MiningMonitor(object):
-    CHECK_INTERVAL = 60 # seconds
+    CHECK_INTERVAL = 60  # seconds
     _exit_status = None
 
     @staticmethod
@@ -25,7 +23,6 @@ class MiningMonitor(object):
     def mine(mining_group):
         LOG.info("Starting miner for \033[92m%s\033[0m!", mining_group)
         current_miner = None
-        last_check_time = None
 
         while True:
             LOG.debug("Finding most profitable miner for \033[92m%s\033[0m...", mining_group)
