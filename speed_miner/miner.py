@@ -72,7 +72,7 @@ def _parse_args_and_start_mining():
 
     main_config_loader = MainConfigLoader()
     config_man.load_from_file(main_config_loader, args.config_path)
-    LOG.init_logging(config_man.get_config()["log_level"])
+    LOG.set_level(config_man.get_config()["log_level"])
 
     mining_group_cls = config_man.get_config()["group"]
     group_config_loader = mining_group_cls.get_group_config_loader()

@@ -35,7 +35,6 @@ class _MinerFormatter(logging.Formatter):
 
 class _LOGMeta(type):
     def __init__(cls, name, bases, dct):
-        cls._logging_inited = None
         cls._total_shares = 0
         cls._total_accepts = 0
         cls.all_log_levels = {
@@ -46,17 +45,14 @@ class _LOGMeta(type):
             "critical": logging.CRITICAL,
         }
 
-        # Temporarily set output to DEBUG
-        logging.getLogger().setLevel(logging.DEBUG)
+        cls._init_logging()
 
-    def init_logging(cls, log_level):
-        assert not cls._logging_inited, "Logger already setup!"
+    def _init_logging(cls):
         logging.getLogger("requests").setLevel(logging.WARNING)
         logging.getLogger("urllib3").setLevel(logging.WARNING)
-        cls._setup_logger(logging.getLogger(), log_level)
-        cls._logging_inited = True
+        cls._setup_logger(logging.getLogger())
 
-    def _setup_logger(cls, logger, log_level):
+    def _setup_logger(cls, logger):
         stdout_handler = logging.StreamHandler(stream=sys.stdout)
         stdout_handler.addFilter(_LogRangeFilter(logging.DEBUG, logging.INFO))
         stdout_handler.setFormatter(_MinerFormatter())
@@ -67,11 +63,15 @@ class _LOGMeta(type):
         stderr_handler.setFormatter(_MinerFormatter())
         stderr_handler.setLevel(logging.DEBUG)
 
-        logger.setLevel(log_level)
+        # Temporarily set output to DEBUG
+        logger.setLevel(logging.DEBUG)
         logger.addHandler(stdout_handler)
         logger.addHandler(stderr_handler)
 
         return logger
+
+    def set_level(cls, log_level):
+        logging.getLogger().setLevel(log_level)
 
     def share(cls, algo, was_accepted, hashrate):
         cls._total_shares += 1
@@ -90,9 +90,6 @@ class _LOGMeta(type):
         return getattr(cls._get_logger(), key)
 
     def _get_logger(cls):
-        if not cls._logging_inited:
-            logging.getLogger().warning("LOG was called before it was inited!")
-
         stack = inspect.stack()
         name = inspect.getmodule(stack[2][0]).__name__
         logger = logging.getLogger(name)
