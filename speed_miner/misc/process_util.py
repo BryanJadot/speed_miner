@@ -28,6 +28,8 @@ def term_proc(proc, term_wait_time=3):
     LOG.debug("Process %i terminated with %i", proc.pid, proc.poll())
 
 def term_all_procs():
+    LOG.debug("Terminating all processes...")
     for p in procs:
+        LOG.debug("Reviewing a process with exit status %s..." % p.poll())
         if p.poll() is None:
             term_proc(p, term_wait_time=1)

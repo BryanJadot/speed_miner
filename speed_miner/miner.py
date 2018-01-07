@@ -1,6 +1,8 @@
+import atexit
 import logging
+import os
+import signal
 
-from atexit import register
 from argparse import ArgumentParser
 
 from speed_miner.monitor import MiningMonitor
@@ -10,8 +12,8 @@ from speed_miner.misc.config_loader import (
     MiningConfigLoader,
     MiningConfigManager,
 )
-from speed_miner.misc.process_util import term_all_procs
 from speed_miner.misc.logging import LOG
+from speed_miner.misc.process_util import term_all_procs
 
 
 class MainConfigLoader(MiningConfigLoader):
@@ -55,6 +57,7 @@ class MainConfigLoader(MiningConfigLoader):
         return parsed_val
 
 def _parse_args_and_start_mining():
+    _init_exit_handling()
     parser = ArgumentParser()
     parser.add_argument(
         "-c",
@@ -79,6 +82,17 @@ def _parse_args_and_start_mining():
     config = config_man.get_config()
     MiningMonitor.mine(mining_group_cls.init_from_config(config))
 
+def _signal_handler(signum, frame):
+    LOG.debug('Signal handler called with signal %i', signum)
+    term_all_procs()
+    os._exit(128 + signum)
+
+def _init_exit_handling():
+    atexit.register(term_all_procs)
+    signal.signal(signal.SIGINT, _signal_handler)
+    signal.signal(signal.SIGTERM, _signal_handler)
+    signal.signal(signal.SIGQUIT, _signal_handler)
+
 def start():
     try:
         _parse_args_and_start_mining()
@@ -90,7 +104,3 @@ def start():
 
         LOG.exception("Uncaught exception caused a program crash!")
         exit(1)
-
-@register
-def term():
-    term_all_procs()
