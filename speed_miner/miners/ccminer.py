@@ -167,17 +167,17 @@ class CCMiner(AbstractMiner):
         unit = unit.lower().strip()
 
         if unit == "h/s":
-            return "h/s"
+            return "H/s"
         elif unit == "kh/s":
-            return "kh/s"
+            return "kH/s"
         elif unit == "mh/s":
-            return "Mh/s"
+            return "MH/s"
         elif unit == "gh/s":
-            return "Gh/s"
+            return "GH/s"
         elif unit == "th/s":
-            return "Th/s"
+            return "TH/s"
         elif unit == "ph/s":
-            return "Ph/s"
+            return "PH/s"
         elif unit == "sol/s":
             return "sol/s"
         elif unit == "ksol/s":

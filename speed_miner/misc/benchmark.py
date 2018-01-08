@@ -14,9 +14,11 @@ class Rate(object):
 
     def get_mbtc_per_day(self, profitability):
         profitability = Benchmarker.ureg(profitability).to_base_units()
+
         assert profitability.dimensionality == "[currency] / [hash]" or \
             profitability.dimensionality == "[currency] / [solution]", \
             "Bad dimensionality: %s" % profitability.dimensionality
+
         return (self._quantity * profitability).to("mbtc / day").magnitude
 
     def to_base_units(self, *args, **kwargs):
@@ -79,7 +81,7 @@ class Benchmarker(object):
     def init_unit_reg():
         ureg = UnitRegistry()
 
-        ureg.define("hash = [hash] = h")
+        ureg.define("hash = [hash] = H")
         ureg.define("solution = [solution] = sol")
         ureg.define("bitcoin = [currency] = btc")
 

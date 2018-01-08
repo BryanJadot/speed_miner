@@ -108,73 +108,73 @@ class ZPoolMiningGroup(AbstractMiningGroup):
 
     def _get_zpool_profitability_unit(self, algo):
         if algo == "sha256":
-            return "Ph"
+            return "PH"
         elif algo == "scrypt":
-            return "Gh"
+            return "GH"
         elif algo == "equihash":
             return "ksol"
         elif algo == "neoscrypt":
-            return "Mh"
+            return "MH"
         elif algo == "quark":
-            return "Gh"
+            return "GH"
         elif algo == "blake2s":
-            return "Gh"
+            return "GH"
         elif algo == "blakecoin":
-            return "Gh"
+            return "GH"
         elif algo == "xevan":
-            return "Mh"
+            return "MH"
         elif algo == "decred":
-            return "Gh"
+            return "GH"
         elif algo == "hsr":
-            return "Mh"
+            return "MH"
         elif algo == "x17":
-            return "Mh"
+            return "MH"
         elif algo == "x11":
-            return "Gh"
+            return "GH"
         elif algo == "phi":
-            return "Mh"
+            return "MH"
         elif algo == "keccak":
-            return "Gh"
+            return "GH"
         elif algo == "sib":
-            return "Mh"
+            return "MH"
         elif algo == "qubit":
-            return "Gh"
+            return "GH"
         elif algo == "bitcore":
-            return "Mh"
+            return "MH"
         elif algo == "yescrypt":
             return "Kh"
         elif algo == "x11evo":
-            return "Mh"
+            return "MH"
         elif algo == "c11":
-            return "Mh"
+            return "MH"
         elif algo == "veltor":
-            return "Mh"
+            return "MH"
         elif algo == "polytimos":
-            return "Mh"
+            return "MH"
         elif algo == "skunk":
-            return "Mh"
+            return "MH"
         elif algo == "nist5":
-            return "Mh"
+            return "MH"
         elif algo == "lyra2v2":
-            return "Mh"
+            return "MH"
         elif algo == "groestl":
-            return "Mh"
+            return "MH"
         elif algo == "tribus":
-            return "Mh"
+            return "MH"
         elif algo == "timetravel":
-            return "Mh"
+            return "MH"
         elif algo == "lbry":
-            return "Mh"
+            return "MH"
         elif algo == "skein":
-            return "Mh"
+            return "MH"
         elif algo == "x13":
-            return "Mh"
+            return "MH"
         elif algo == "myr-gr":
-            return "Mh"
+            return "MH"
         elif algo == "x14":
-            return "Mh"
+            return "MH"
         elif algo == "lyra2z":
-            return "Mh"
+            return "MH"
         else:
             raise Exception("Unsupported algo: %s" % algo)
 
