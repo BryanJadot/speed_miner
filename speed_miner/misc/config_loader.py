@@ -90,8 +90,8 @@ class MiningConfigLoader(ABC, metaclass=MiningConfigLoaderMeta):
         }
 
     def _print_error(self, err):
-        print("\033[31mError occurred: \"%s\".\033[m\n" % str(err), file=sys.stderr)
-        print("%s\nPossible parameters:" % self.describe(), file=sys.stderr)
+        err_str = ("\033[31mError occurred: \"%s\".\033[m\n\n" % str(err))
+        err_str += ("%s\nPossible parameters:\n" % self.describe())
 
         parse_params = sorted(list(self._get_prefix_funcs("parse_").keys()))
         default_funcs = self._get_prefix_funcs("default_parse_")
@@ -100,19 +100,18 @@ class MiningConfigLoader(ABC, metaclass=MiningConfigLoaderMeta):
         param_to_description = self._get_prefix_funcs("describe_")
         for param in parse_params:
             desc_func = param_to_description[param]
-            desc_str = "\n\033[1m%s\033[0m\n\t%s" % (param, desc_func(self).replace("\n", "\n\t"))
-            print(desc_str, file=sys.stderr)
+            err_str += "\n\033[1m%s\033[0m\n\t%s\n" % (param, desc_func(self).replace("\n", "\n\t"))
 
         for param in default_parse_params:
             desc_func = param_to_description[param]
-            desc_str = "\n\033[1m%s (default: \"%s\")\033[0m\n\t%s" % (
+            err_str += "\n\033[1m%s (default: \"%s\")\033[0m\n\t%s\n" % (
                 param,
                 default_funcs[param](self, None),
                 desc_func(self).replace("\n", "\n\t"),
             )
-            print(desc_str, file=sys.stderr)
 
-        print("", file=sys.stderr)
+        err_str += "\n"
+        print(err_str, file=sys.stderr)
 
     @abstractmethod
     def describe(self):
