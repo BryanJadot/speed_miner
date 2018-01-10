@@ -36,7 +36,7 @@ class MainConfigLoader(MiningConfigLoader):
     def parse_wallet(self, value):
         return str(value)
 
-    def describe_log_level(self, value):
+    def describe_log_level(self):
         log_desc = "Define a lower threshold of log values to output. "
         log_desc += "Logs of a level below this value will not be outputed. "
         log_desc += "Possible values in ascending order:\n"
@@ -48,6 +48,8 @@ class MainConfigLoader(MiningConfigLoader):
         log_desc += "of the program.\n"
         log_desc += "* \"CRITICAL\": Show critical and worse errors. These are issues that "
         log_desc += "prevented the program from continuing."
+
+        return log_desc
 
     def default_parse_log_level(self, value):
         # If one wasn't specied, return a default value.
