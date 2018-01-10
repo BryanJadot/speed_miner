@@ -48,111 +48,10 @@ class CCMiner(AbstractMiner):
         cls._cached_ccminer_algos = supported_algos
         return supported_algos
 
-    def return_when_miner_is_using_gpu(self):
-        assert self.miner_proc and self.miner_proc.poll() is None, "Process is not running"
-
-        checker = start_proc("nvidia-smi pmon", pipe_stdout=True)
-
-        for line in checker.stdout:
-            if str(self.miner_proc.pid).encode('utf-8') in line:
-                break
-
-        term_proc(checker)
-
     def return_when_share_is_done(self):
         self.share_cond.acquire()
         self.share_cond.wait()
         self.share_cond.release()
-
-    def _get_intensity_override(self, algo):
-        # Hack to set intensity for a specific algo.
-        # nist5
-        # skein? 27 may be better than 20
-        return None
-
-    def _get_run_cmd(
-            self,
-            path_to_exec,
-            algo,
-            url,
-            port,
-            wallet,
-            password,
-            kwargs=None
-    ):
-        assert path_to_exec and algo
-
-        kwarg_str = ""
-        if kwargs:
-            # Let's keep the order of the kwargs always consistent.
-            for k, v in iter(sorted(list(kwargs.items()))):
-                kwarg_str += " %s" % k
-                if v:
-                    kwarg_str += " %s" % v
-
-        run_args = {
-            "exec": path_to_exec,
-            "algo": algo,
-            "kwargs": kwarg_str,
-        }
-        cmd = "%(exec)s -a %(algo)s --quiet%(kwargs)s" % run_args
-
-        intensity = self._get_intensity_override(algo)
-
-        if intensity:
-            cmd = "%s -i %s" % (cmd, intensity)
-
-        if url:
-            cmd = "%s -o %s" % (cmd, url)
-
-        if port:
-            cmd = "%s:%s" % (cmd, port)
-
-        if wallet:
-            cmd = "%s -u %s" % (cmd, wallet)
-
-        if password:
-            cmd = "%s -p %s" % (cmd, password)
-
-        return cmd.strip()
-
-    def get_mining_cmd(self):
-        return self._get_run_cmd(
-            self.path_to_exec,
-            self.algo,
-            self.url,
-            self.port,
-            self.wallet,
-            self.password
-        )
-
-    def start_and_return(self):
-        cmd = self.get_mining_cmd()
-        self.miner_proc = start_proc(cmd, pipe_stdout=True)
-        self.logger_thread = self._start_and_return_logging_thread(self.miner_proc.stdout)
-
-    @staticmethod
-    def stdout_printer(stdout, name, share_cond, algo):
-        for line in stdout:
-            line = line.decode("UTF-8").strip()
-            if "booooo" in line or "yes!" in line:
-                share_cond.acquire()
-                share_cond.notify_all()
-                share_cond.release()
-                speed = line.split(",")[-1].rpartition(" ")[0].strip()
-
-                LOG.share(algo, "yes!" in line, speed)
-
-            LOG.debug(line)
-
-    def _start_and_return_logging_thread(self, proc_stdout):
-        t = CrashThread(
-            target=CCMiner.stdout_printer,
-            args=(proc_stdout, str(self), self.share_cond, self.algo),
-            name="%s (%s)" % (str(self), "stdout"),
-        )
-        t.start()
-        return t
 
     def stop_mining_and_return_when_stopped(self):
         LOG.debug("Terminating ccminer (%s)...", self.algo)
@@ -228,14 +127,112 @@ class CCMiner(AbstractMiner):
 
         return final_hashrate
 
-    def wait(self, timeout=None):
-        self.miner_proc.wait(timeout=timeout)
-
     def is_mining(self):
         return self.miner_proc.poll() is None
 
-    def __str__(self):
-        return "CCMiner - %s" % self.algo
+    def _return_when_miner_is_using_gpu(self):
+        assert self.miner_proc and self.miner_proc.poll() is None, "Process is not running"
+
+        checker = start_proc("nvidia-smi pmon", pipe_stdout=True)
+
+        for line in checker.stdout:
+            if str(self.miner_proc.pid).encode('utf-8') in line:
+                break
+
+        term_proc(checker)
+
+    def _start_and_return(self):
+        cmd = self._get_mining_cmd()
+        self.miner_proc = start_proc(cmd, pipe_stdout=True)
+        self.logger_thread = self._start_and_return_logging_thread(self.miner_proc.stdout)
+
+    def _get_intensity_override(self, algo):
+        # Hack to set intensity for a specific algo.
+        # nist5
+        # skein? 27 may be better than 20
+        return None
+
+    def _get_run_cmd(
+            self,
+            path_to_exec,
+            algo,
+            url,
+            port,
+            wallet,
+            password,
+            kwargs=None
+    ):
+        assert path_to_exec and algo
+
+        kwarg_str = ""
+        if kwargs:
+            # Let's keep the order of the kwargs always consistent.
+            for k, v in iter(sorted(list(kwargs.items()))):
+                kwarg_str += " %s" % k
+                if v:
+                    kwarg_str += " %s" % v
+
+        run_args = {
+            "exec": path_to_exec,
+            "algo": algo,
+            "kwargs": kwarg_str,
+        }
+        cmd = "%(exec)s -a %(algo)s --quiet%(kwargs)s" % run_args
+
+        intensity = self._get_intensity_override(algo)
+
+        if intensity:
+            cmd = "%s -i %s" % (cmd, intensity)
+
+        if url:
+            cmd = "%s -o %s" % (cmd, url)
+
+        if port:
+            cmd = "%s:%s" % (cmd, port)
+
+        if wallet:
+            cmd = "%s -u %s" % (cmd, wallet)
+
+        if password:
+            cmd = "%s -p %s" % (cmd, password)
+
+        return cmd.strip()
+
+    def _get_mining_cmd(self):
+        return self._get_run_cmd(
+            self.path_to_exec,
+            self.algo,
+            self.url,
+            self.port,
+            self.wallet,
+            self.password
+        )
+
+    @staticmethod
+    def _stdout_printer(stdout, name, share_cond, algo):
+        for line in stdout:
+            line = line.decode("UTF-8").strip()
+            if "booooo" in line or "yes!" in line:
+                share_cond.acquire()
+                share_cond.notify_all()
+                share_cond.release()
+                speed = line.split(",")[-1].rpartition(" ")[0].strip()
+
+                LOG.share(algo, "yes!" in line, speed)
+
+            LOG.debug(line)
+
+    def _start_and_return_logging_thread(self, proc_stdout):
+        t = CrashThread(
+            target=CCMiner._stdout_printer,
+            args=(proc_stdout, str(self), self.share_cond, self.algo),
+            name="%s (%s)" % (str(self), "stdout"),
+        )
+        t.start()
+        return t
 
     def __eq__(self, other):
-        return self.get_mining_cmd() == (other and other.get_mining_cmd())
+        return self._get_mining_cmd() == (other and other._get_mining_cmd())
+
+    def __str__(self):
+        return self._get_mining_cmd()

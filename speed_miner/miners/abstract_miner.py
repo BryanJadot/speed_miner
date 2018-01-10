@@ -7,19 +7,11 @@ class AbstractMiner(ABC):
         raise NotImplementedError()
 
     def start_and_return_when_miner_is_using_gpu(self):
-        self.start_and_return()
-        self.return_when_miner_is_using_gpu()
-
-    @abstractmethod
-    def return_when_miner_is_using_gpu(self):
-        pass
+        self._start_and_return()
+        self._return_when_miner_is_using_gpu()
 
     @abstractmethod
     def return_when_share_is_done(self):
-        pass
-
-    @abstractmethod
-    def start_and_return(self):
         pass
 
     @abstractmethod
@@ -31,13 +23,21 @@ class AbstractMiner(ABC):
         pass
 
     @abstractmethod
-    def wait(self, timeout=None):
-        pass
-
-    @abstractmethod
     def is_mining(self):
         pass
 
     @abstractmethod
+    def _return_when_miner_is_using_gpu(self):
+        pass
+
+    @abstractmethod
+    def _start_and_return(self):
+        pass
+
+    @abstractmethod
     def __eq__(self):
+        pass
+
+    @abstractmethod
+    def __str__(self):
         pass
