@@ -35,7 +35,7 @@ class TestMinerConfigLoader(MinerTestCase):
         desc = _print.call_args[0][0]
         self.assertIn("Let's mine some coin", desc)
         self.assertIn("CRITICAL", desc)
-        self.assertIn("default: \"zpool\"", desc)
+        self.assertIn("default: \"INFO\"", desc)
 
     @patch("speed_miner.misc.config_loader.print")
     @patch("speed_miner.misc.config_loader.exit")

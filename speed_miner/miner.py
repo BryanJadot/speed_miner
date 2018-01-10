@@ -49,7 +49,7 @@ class MinerConfigLoader(MiningConfigLoader):
         log_desc += "* \"CRITICAL\": Show critical and worse errors. These are issues that "
         log_desc += "prevented the program from continuing."
 
-        return ("zpool", log_desc)
+        return ("INFO", log_desc)
 
     def default_parse_log_level(self, value):
         # If one wasn't specied, return a default value.
@@ -60,7 +60,7 @@ class MinerConfigLoader(MiningConfigLoader):
 
         # If the provided value wasn't what was expected
         if parsed_val is None:
-            raise InvalidMiningConfig("%s is not a valid log level." % value)
+            raise InvalidMiningConfig("%s is not a valid log level" % value)
 
         return parsed_val
 
