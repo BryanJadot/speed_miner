@@ -14,7 +14,7 @@ class MiningConfigManager(object):
     def __init__(self):
         self._config = {}
 
-    def load_from_json_dict(self, loader, json_dict):
+    def load_from_dict(self, loader, json_dict):
         self._config.update(loader.process_config_from_dict(json_dict))
 
     def load_from_file(self, loader, filename):

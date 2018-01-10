@@ -97,7 +97,7 @@ class ZPoolMiningGroup(AbstractMiningGroup):
             self,
             payout_currency,
             wallet,
-            algo_data_source="status",
+            algo_data_source="algo",
             calc_all_algo_data_sources=False,
             algo_blacklist=None):
         self._payout_currency = payout_currency
@@ -204,8 +204,8 @@ class ZPoolMiningGroup(AbstractMiningGroup):
             for s in statuses
         ]
 
-    def _get_algo_info_from_statuses(self):
-        LOG.debug("Fetching algo statuses...")
+    def _get_algo_info_from_algos(self):
+        LOG.debug("Fetching algo info...")
         return self._status_to_algo_info(
             list(Fetcher.fetch_json_api("http://www.zpool.ca/api/status").values()))
 
@@ -260,7 +260,7 @@ class ZPoolMiningGroup(AbstractMiningGroup):
     def _get_most_profitable_miner_for_source(self, source):
         LOG.debug("Finding most profitable algo for source \"%s\"..." % source)
         if source == "algo":
-            algo_info = self._get_algo_info_from_statuses()
+            algo_info = self._get_algo_info_from_algos()
         elif source == "currency":
             algo_info = self._get_algo_info_from_currencies()
 
