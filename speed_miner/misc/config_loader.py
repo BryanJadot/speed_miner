@@ -104,10 +104,11 @@ class MiningConfigLoader(ABC, metaclass=MiningConfigLoaderMeta):
 
         for param in default_parse_params:
             desc_func = param_to_description[param]
+            describe_default = desc_func(self)
             err_str += "\n\033[1m%s (default: \"%s\")\033[0m\n\t%s\n" % (
                 param,
-                default_funcs[param](self, None),
-                desc_func(self).replace("\n", "\n\t"),
+                describe_default[0],
+                describe_default[1].replace("\n", "\n\t"),
             )
 
         err_str += "\n"

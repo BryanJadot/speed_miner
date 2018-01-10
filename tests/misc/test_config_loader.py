@@ -21,7 +21,7 @@ class DummyConfigLoader(MiningConfigLoader):
             raise InvalidMiningConfig("bad")
 
     def describe_param1(self):
-        return "This is a default param description"
+        return ("yay", "This is a default param description")
 
     def default_parse_param1(self, param):
         if param is None:
@@ -53,6 +53,15 @@ class TestDummyConfigLoader(MinerTestCase):
         self.assertEqual(config["param"], 0)
         self.assertEqual(config["param1"], 1)
 
+        d = {
+            "param": "good",
+            "fdsasdf": "fdsfsd",
+        }
+        config = self.c.process_config_from_dict(d)
+        self.assertEqual(config["param"], 0)
+        self.assertEqual(config["param1"], 1)
+        self.assertNotIn("fdsasdf", config)
+
     def test_good_file_parse(self):
         d = {
             "param": "good",
@@ -76,7 +85,8 @@ class TestDummyConfigLoader(MinerTestCase):
         desc = _print.call_args[0][0]
         self.assertIn(self.c.describe(), desc)
         self.assertIn(self.c.describe_param(), desc)
-        self.assertIn(self.c.describe_param1(), desc)
+        self.assertIn("default: \"%s\"" % self.c.describe_param1()[0], desc)
+        self.assertIn(self.c.describe_param1()[1], desc)
         self.assertIn(err_str, desc)
 
     @patch("speed_miner.misc.config_loader.print")

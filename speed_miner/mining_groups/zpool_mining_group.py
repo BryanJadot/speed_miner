@@ -9,21 +9,21 @@ from speed_miner.misc.logging import LOG
 
 class ZPoolMiningGroupLoader(MiningConfigLoader):
     def describe(self):
-        return "Looks like you're try to mine zpool!"
+        return "Looks like you're trying to mine zpool!"
 
     def describe_payout_currency(self):
         return "Put the three letter acronym of the payout currency here."
 
     def parse_payout_currency(self, value):
         if len(value) == 3:
-            return str(value)
+            return str(value).upper()
         else:
             raise InvalidMiningConfig(
                 "This is probably a bad payout currency. Should be three letters."
             )
 
     def describe_algo_blacklist(self):
-        return "A list of algos to not mine. Separate each by a comma."
+        return ("", "A list of algos to not mine. Separate each by a comma.")
 
     def default_parse_algo_blacklist(self, value):
         if value is None:
@@ -38,7 +38,7 @@ class ZPoolMiningGroupLoader(MiningConfigLoader):
         desc += "Currently, this seems to be the most stable API.\n"
         desc += "* \"currency\": This will query the API that gives estimates bucketed by "
         desc += "currency. Currently, a less stable API."
-        return desc
+        return ("algo", desc)
 
     def default_parse_algo_data_source(self, value):
         if value is None:
@@ -57,7 +57,7 @@ class ZPoolMiningGroupLoader(MiningConfigLoader):
         desc += "affect which data source gets used, this is merely to allow "
         desc += "comparisons of different data sources."
 
-        return desc
+        return ("false", desc)
 
     def default_parse_calc_all_algo_data_sources(self, value):
         if value is None:

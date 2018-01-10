@@ -15,7 +15,7 @@ from speed_miner.misc.logging import LOG
 from speed_miner.misc.process_util import term_all_procs
 
 
-class MainConfigLoader(MiningConfigLoader):
+class MinerConfigLoader(MiningConfigLoader):
     def describe(self):
         desc = "Let's mine some coin! Please view README.md for more information on how to set up "
         desc += "this program."
@@ -49,7 +49,7 @@ class MainConfigLoader(MiningConfigLoader):
         log_desc += "* \"CRITICAL\": Show critical and worse errors. These are issues that "
         log_desc += "prevented the program from continuing."
 
-        return log_desc
+        return ("zpool", log_desc)
 
     def default_parse_log_level(self, value):
         # If one wasn't specied, return a default value.
@@ -79,7 +79,7 @@ def _parse_args_and_start_mining():
 
     config_man = MiningConfigManager()
 
-    main_config_loader = MainConfigLoader()
+    main_config_loader = MinerConfigLoader()
     config_man.load_from_file(main_config_loader, args.config_path)
     LOG.set_level(config_man.get_config()["log_level"])
 

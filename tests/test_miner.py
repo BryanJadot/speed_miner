@@ -1,7 +1,45 @@
-from unittest import TestCase
+from unittest.mock import patch
+
+from speed_miner.miner import MinerConfigLoader
+
+from tests.util.test_case import MinerTestCase
 
 
-class TestMiner(TestCase):
+class TestMinerConfigLoader(MinerTestCase):
 
-    def test_miners(self):
-        self.assertEqual("a", "a")
+    def setUp(self):
+        self.c = MinerConfigLoader()
+
+    def test_good_dict_parse(self):
+        d = {
+            "group": "zpool",
+            "wallet": "123",
+            "log_level": "DEBUG",
+        }
+        config = self.c.process_config_from_dict(d)
+        self.assertEqual(config["group"].__name__, "ZPoolMiningGroup")
+        self.assertEqual(config["wallet"], "123")
+        self.assertEqual(config["log_level"], 10)
+
+        d = {
+            "group": "zpool",
+            "wallet": "123",
+        }
+        config = self.c.process_config_from_dict(d)
+        self.assertEqual(config["group"].__name__, "ZPoolMiningGroup")
+        self.assertEqual(config["wallet"], "123")
+        self.assertEqual(config["log_level"], 20)
+
+    def _check_desc(self, _exit, _print):
+        _exit.assert_called_with(1)
+        desc = _print.call_args[0][0]
+        self.assertIn("Let's mine some coin", desc)
+        self.assertIn("CRITICAL", desc)
+        self.assertIn("default: \"zpool\"", desc)
+
+    @patch("speed_miner.misc.config_loader.print")
+    @patch("speed_miner.misc.config_loader.exit")
+    def test_bad_param(self, _exit, _print):
+        d = {}
+        self.c.process_config_from_dict(d)
+        self._check_desc(_exit, _print)
