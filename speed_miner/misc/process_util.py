@@ -1,4 +1,4 @@
-from subprocess import PIPE, Popen
+from subprocess import PIPE, Popen, TimeoutExpired
 
 from speed_miner.misc.logging import LOG
 
@@ -24,7 +24,10 @@ def term_proc(proc, term_wait_time=3):
             term_wait_time,
         )
         proc.terminate()
-        proc.wait(term_wait_time)
+        try:
+            proc.wait(term_wait_time)
+        except TimeoutExpired:
+            pass
 
     if proc.poll() is None:
         LOG.warning(

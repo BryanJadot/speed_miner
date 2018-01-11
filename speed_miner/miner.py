@@ -5,6 +5,7 @@ import signal
 from argparse import ArgumentParser
 
 from speed_miner.monitor import MiningMonitor
+from speed_miner.mining_groups.nicehash_mining_group import NicehashMiningGroup
 from speed_miner.mining_groups.zpool_mining_group import ZPoolMiningGroup
 from speed_miner.misc.config_loader import (
     InvalidMiningConfig,
@@ -27,6 +28,8 @@ class MinerConfigLoader(MiningConfigLoader):
     def parse_group(self, value):
         if value == "zpool":
             return ZPoolMiningGroup
+        elif value == "nicehash":
+            return NicehashMiningGroup
         else:
             raise InvalidMiningConfig("%s is not a valid group value" % value)
 

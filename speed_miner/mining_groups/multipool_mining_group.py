@@ -3,24 +3,11 @@ from collections import namedtuple
 
 from speed_miner.miners import get_supported_algos, get_miner_for_algo
 from speed_miner.mining_groups.abstract_mining_group import AbstractMiningGroup
-from speed_miner.misc.config_loader import InvalidMiningConfig, MiningConfigLoader
+from speed_miner.misc.config_loader import MiningConfigLoader
 from speed_miner.misc.logging import LOG
 
 
 class MultipoolMiningGroupLoader(MiningConfigLoader):
-    def describe(self):
-        return "Looks like you're trying to mine zpool!"
-
-    def describe_payout_currency(self):
-        return "Put the three letter acronym of the payout currency here."
-
-    def parse_payout_currency(self, value):
-        if len(value) == 3:
-            return str(value).upper()
-        else:
-            raise InvalidMiningConfig(
-                "This is probably a bad payout currency. Should be three letters."
-            )
 
     def describe_algo_blacklist(self):
         return ("", "A list of algos to not mine. Separate each by a comma.")
@@ -36,8 +23,7 @@ AlgoInfo = namedtuple("AlgoInfo", ["url", "port", "algo", "prof_str"])
 
 class MultipoolMiningGroup(AbstractMiningGroup):
 
-    def __init__(self, payout_currency, wallet, algo_blacklist=None):
-        self._payout_currency = payout_currency
+    def __init__(self, wallet, algo_blacklist=None):
         self._wallet = wallet
         self._algo_blacklist = algo_blacklist or set()
 
@@ -68,7 +54,7 @@ class MultipoolMiningGroup(AbstractMiningGroup):
             reverse=True,
         )
         for a in sorted_algo_info:
-            LOG.debug("    Profitability of %s = %s", a.algo, _get_prof(a))
+            LOG.debug("    Profitability of %s = %s mbtc / day", a.algo, _get_prof(a))
 
         return sorted_algo_info[0].algo
 

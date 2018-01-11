@@ -12,6 +12,17 @@ class ZPoolMiningGroupLoader(MultipoolMiningGroupLoader):
     def describe(self):
         return "Looks like you're trying to mine zpool!"
 
+    def describe_payout_currency(self):
+        return "Put the three letter acronym of the payout currency here."
+
+    def parse_payout_currency(self, value):
+        if len(value) == 3:
+            return str(value).upper()
+        else:
+            raise InvalidMiningConfig(
+                "This is probably a bad payout currency. Should be three letters."
+            )
+
     def describe_algo_data_source(self):
         desc = "Put the desired zpool API with which to calculate profitability. "
         desc += "Currently, it doesn't seem one API is best for maximizing profitability and "
@@ -78,7 +89,8 @@ class ZPoolMiningGroup(MultipoolMiningGroup):
             algo_data_source="algo",
             calc_all_algo_data_sources=False,
             algo_blacklist=None):
-        super().__init__(payout_currency, wallet, algo_blacklist=algo_blacklist)
+        super().__init__(wallet, algo_blacklist=algo_blacklist)
+        self._payout_currency = payout_currency
         self._algo_data_source = algo_data_source
         self._calc_all_algo_data_sources = calc_all_algo_data_sources
 

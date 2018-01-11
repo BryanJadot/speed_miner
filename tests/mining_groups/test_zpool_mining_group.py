@@ -8,7 +8,7 @@ from speed_miner.misc.config_loader import MiningConfigManager
 from tests.util.test_case import MinerTestCase
 
 
-class TestMinerConfigLoader(MinerTestCase):
+class TestZPoolMinerConfigLoader(MinerTestCase):
 
     def setUp(self):
         self.c = ZPoolMiningGroupLoader()
