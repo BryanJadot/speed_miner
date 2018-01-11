@@ -118,6 +118,8 @@ class ZPoolMiningGroup(MultipoolMiningGroup):
             return "ksol"
         elif algo == "neoscrypt":
             return "MH"
+        elif algo == "m7m":
+            return "MH"
         elif algo == "quark":
             return "GH"
         elif algo == "blake2s":
