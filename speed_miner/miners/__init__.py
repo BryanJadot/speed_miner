@@ -15,7 +15,7 @@ def get_miner_for_algo(algo, url, port, wallet, password):
         "lbry": "/usr/local/bin/alexis-ccminer",
         "skein": "/usr/local/bin/alexis-ccminer",
     }
-    default_ccminer = "/usr/local/bin/ccminer"
+    default_ccminer = "/usr/local/bin/tpruvot-ccminer"
     path_to_exec = algo_to_custom_ccminer.get(algo) or default_ccminer
 
     return CCMiner(path_to_exec, algo, url, port, wallet, password)

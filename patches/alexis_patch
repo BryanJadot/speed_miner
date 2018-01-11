@@ -1,0 +1,26 @@
+diff --git a/Makefile.am b/Makefile.am
+index 3406615..3038202 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -86,9 +86,7 @@ ccminer_CPPFLAGS = @LIBCURL_CPPFLAGS@ @PCIFLAGS@ @OPENMP_CFLAGS@ $(CPPFLAGS) $(P
+ 
+ nvcc_ARCH = -gencode=arch=compute_52,code=\"sm_52,compute_52\"
+ nvcc_ARCH += -gencode=arch=compute_50,code=\"sm_50,compute_50\"
+-#nvcc_ARCH = -gencode=arch=compute_35,code=\"sm_35,compute_35\"
+-#nvcc_ARCH += -gencode=arch=compute_30,code=\"sm_30,compute_30\"
+-#nvcc_ARCH += -gencode=arch=compute_20,code=\"sm_21,compute_20\"
++nvcc_ARCH += -gencode=arch=compute_35,code=\"sm_35,compute_35\"
+ 
+ nvcc_FLAGS = $(nvcc_ARCH) @CUDA_INCLUDES@ -I. @CUDA_CFLAGS@
+ nvcc_FLAGS += $(JANSSON_INCLUDES) --ptxas-options="-v" -lineinfo
+diff --git a/configure.sh b/configure.sh
+index cb92748..7a13cf4 100755
+--- a/configure.sh
++++ b/configure.sh
+@@ -8,5 +8,4 @@
+ 
+ extracflags="-march=native -D_REENTRANT -falign-functions=16 -falign-jumps=16 -falign-labels=16"
+ 
+-CUDA_CFLAGS="-O3 -lineno -Xcompiler -Wall -D_FORCE_INLINES" ./configure CXXFLAGS="-O3 $extracflags" --with-cuda=/usr/local/cuda-7.5 --with-nvml=libnvidia-ml.so
+-
++CUDA_CFLAGS="-O3 -lineno -Xcompiler -Wall -D_FORCE_INLINES" ./configure CXXFLAGS="-O3 $extracflags" --with-cuda=/usr/local/cuda --with-nvml=libnvidia-ml.so

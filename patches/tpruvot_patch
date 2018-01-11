@@ -1,0 +1,49 @@
+diff --git a/Makefile.am b/Makefile.am
+index 01fc6b1..6edf2d7 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -37,7 +37,7 @@ ccminer_SOURCES	= elist.h miner.h compat.h \
+ 			  myriadgroestl.cpp cuda_myriadgroestl.cu \
+ 			  lyra2/Lyra2.c lyra2/Sponge.c \
+ 			  lyra2/lyra2RE.cu lyra2/cuda_lyra2.cu \
+-		          lyra2/lyra2REv2.cu lyra2/cuda_lyra2v2.cu \
++				  lyra2/lyra2REv2.cu lyra2/cuda_lyra2v2.cu \
+ 			  lyra2/Lyra2Z.c lyra2/lyra2Z.cu lyra2/cuda_lyra2Z.cu \
+ 			  Algo256/cuda_bmw256.cu Algo256/cuda_cubehash256.cu \
+ 			  Algo256/cuda_blake256.cu Algo256/cuda_groestl256.cu \
+@@ -82,10 +82,10 @@ ccminer_SOURCES	= elist.h miner.h compat.h \
+ 
+ # scrypt
+ ccminer_SOURCES += scrypt.cpp scrypt-jane.cpp \
+-    scrypt/blake.cu scrypt/keccak.cu scrypt/sha256.cu \
+-    scrypt/salsa_kernel.cu scrypt/test_kernel.cu \
+-    scrypt/fermi_kernel.cu scrypt/kepler_kernel.cu \
+-    scrypt/nv_kernel.cu scrypt/nv_kernel2.cu scrypt/titan_kernel.cu
++	scrypt/blake.cu scrypt/keccak.cu scrypt/sha256.cu \
++	scrypt/salsa_kernel.cu scrypt/test_kernel.cu \
++	scrypt/fermi_kernel.cu scrypt/kepler_kernel.cu \
++	scrypt/nv_kernel.cu scrypt/nv_kernel2.cu scrypt/titan_kernel.cu
+ 
+ if HAVE_NVML
+ nvml_defs = -DUSE_WRAPNVML
+@@ -111,12 +111,11 @@ endif
+ #ccminer_LDADD += -lsodium
+ ccminer_LDADD += -lcuda
+ 
+-nvcc_ARCH :=
+-#nvcc_ARCH += -gencode=arch=compute_61,code=\"sm_61,compute_61\"
++nvcc_ARCH = -gencode=arch=compute_61,code=\"sm_61,compute_61\"
+ nvcc_ARCH += -gencode=arch=compute_52,code=\"sm_52,compute_52\"
+ nvcc_ARCH += -gencode=arch=compute_50,code=\"sm_50,compute_50\"
+-#nvcc_ARCH += -gencode=arch=compute_35,code=\"sm_35,compute_35\"
+-#nvcc_ARCH += -gencode=arch=compute_30,code=\"sm_30,compute_30\"
++nvcc_ARCH += -gencode=arch=compute_35,code=\"sm_35,compute_35\"
++nvcc_ARCH += -gencode=arch=compute_30,code=\"sm_30,compute_30\"
+ 
+ nvcc_FLAGS = $(nvcc_ARCH) @CUDA_INCLUDES@ -I. @CUDA_CFLAGS@
+ nvcc_FLAGS += $(JANSSON_INCLUDES) --ptxas-options="-v"
+@@ -197,4 +196,3 @@ scrypt/titan_kernel.o: scrypt/titan_kernel.cu
+ 
+ skein.o: skein.cu
+ 	$(NVCC) $(nvcc_FLAGS) --maxrregcount=64 -o $@ -c $<
+-
