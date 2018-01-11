@@ -3,7 +3,9 @@ DEPS_DIR=deps
 PATCH_DIR=patches
 
 deps-dir:
-	mkdir $(DEPS_DIR)
+	if [ ! -d "./$(DEPS_DIR)" ]; then \
+		mkdir $(DEPS_DIR); \
+	fi
 
 alexis-ccminer: deps-dir
 	if [ ! -d "./$(DEPS_DIR)/alexis_ccminer" ]; then \

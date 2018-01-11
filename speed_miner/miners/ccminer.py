@@ -27,7 +27,7 @@ class CCMiner(AbstractMiner):
         if cls._cached_ccminer_algos:
             return cls._cached_ccminer_algos
 
-        proc = start_proc("ccminer -h", pipe_stdout=True)
+        proc = start_proc("/usr/local/bin/tpruvot-ccminer -h", pipe_stdout=True)
         reading_algos = False
         supported_algos = set()
 
