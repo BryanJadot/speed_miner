@@ -218,7 +218,7 @@ class CCMiner(AbstractMiner):
                 share_cond.release()
                 speed = line.split(",")[-1].rpartition(" ")[0].strip()
 
-                LOG.share(algo, "yes!" in line, speed)
+                LOG.share(algo, "yes!" in line, Rate(speed))
 
             LOG.debug(line)
 
