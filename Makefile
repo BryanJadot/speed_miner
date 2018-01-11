@@ -1,3 +1,5 @@
+.DEFAULT_GOAL := install
+
 BIN_DIR=/usr/local/bin
 DEPS_DIR=deps
 PATCH_DIR=patches
@@ -48,9 +50,11 @@ run: install
 test:
 	sudo python3 setup.py test
 
-clean:
-	sudo git clean -Xfd
+quickclean:
 	sudo python3 setup.py clean
+
+clean: quickclean
+	sudo git clean -Xfd
 	sudo rm -r $(DEPS_DIR) || true
 
 distclean: clean
