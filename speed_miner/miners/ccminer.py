@@ -62,28 +62,6 @@ class CCMiner(AbstractMiner):
         self.miner_proc = None
         self.logger_thread = None
 
-    def _fix_units(self, unit):
-        unit = unit.lower().strip()
-
-        if unit == "h/s":
-            return "H/s"
-        elif unit == "kh/s":
-            return "kH/s"
-        elif unit == "mh/s":
-            return "MH/s"
-        elif unit == "gh/s":
-            return "GH/s"
-        elif unit == "th/s":
-            return "TH/s"
-        elif unit == "ph/s":
-            return "PH/s"
-        elif unit == "sol/s":
-            return "sol/s"
-        elif unit == "ksol/s":
-            return "ksol/s"
-        else:
-            raise Exception("Unsupported unit type %s" % unit)
-
     def benchmark(self):
         cmd = self._get_run_cmd(
             self.path_to_exec,
@@ -111,10 +89,8 @@ class CCMiner(AbstractMiner):
             line = line.strip().decode("UTF-8")
 
             if "Total:" in line:
-                split_line = line.split(" ")
-                rate_str = "%s %s" % (split_line[3], self._fix_units(split_line[4]))
-                hr = Rate(rate_str)
-                bm.add_rate(hr)
+                r = Rate(line.split(":")[-1].strip())
+                bm.add_rate(r)
 
                 final_hashrate = bm.get_benchmark()
                 if final_hashrate:

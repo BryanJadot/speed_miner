@@ -127,7 +127,7 @@ class ZPoolMiningGroup(MultipoolMiningGroup):
         elif algo == "scrypt":
             return "GH"
         elif algo == "equihash":
-            return "ksol"
+            return "kSol"
         elif algo == "neoscrypt":
             return "MH"
         elif algo == "m7m":
@@ -196,7 +196,7 @@ class ZPoolMiningGroup(MultipoolMiningGroup):
             raise Exception("Unsupported algo: %s" % algo)
 
     def _get_prof_str(self, estimate, algo):
-        return "%s mbtc/%s*s/day" % (estimate, self._get_zpool_profitability_unit(algo))
+        return "%s mBTC/%s*s/day" % (estimate, self._get_zpool_profitability_unit(algo))
 
     def _get_url(self, algo):
         return "stratum+tcp://%s%s" % (algo, ZPoolMiningGroup.ZPOOL_URL_SUFFIX)

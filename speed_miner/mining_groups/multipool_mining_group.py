@@ -54,7 +54,7 @@ class MultipoolMiningGroup(AbstractMiningGroup):
             reverse=True,
         )
         for a in sorted_algo_info:
-            LOG.debug("    Profitability of %s = %s mbtc / day", a.algo, _get_prof(a))
+            LOG.debug("    Profitability of %s = %s mBTC / day", a.algo, _get_prof(a))
 
         return sorted_algo_info[0].algo
 

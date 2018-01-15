@@ -14,8 +14,16 @@ class TestRate(MinerTestCase):
         with self.assertRaises(AssertionError):
             Rate("1 MH/s/s")
 
+        self.assertEqual(str(Rate("9014.51MH/s")), "9014.51 MH / s")
+        self.assertEqual(str(Rate("9014.51 MH/s")), "9014.51 MH / s")
+        self.assertEqual(str(Rate("9014.51 MH / s")), "9014.51 MH / s")
+
+        self.assertEqual(str(Rate("9014.51kSol/s")), "9014.51 kSol / s")
+        self.assertEqual(str(Rate("9014.51 kSol/s")), "9014.51 kSol / s")
+        self.assertEqual(str(Rate("9014.51 kSol / s")), "9014.51 kSol / s")
+
     def test_rate_profitability(self):
-        self.assertEqual(self.hr1.get_mbtc_per_day("0.05 mbtc*s/day/MH"), 1.0)
+        self.assertEqual(self.hr1.get_mbtc_per_day("0.05 mBTC*s/day/MH"), 1.0)
 
     def test_rate_to_base_units(self):
         self.assertEqual(str(self.hr1.to_base_units()), "20000000.0 H / s")
@@ -49,9 +57,9 @@ class TestRate(MinerTestCase):
         self.assertEqual(str(self.hr1), "20.0 MH / s")
 
     def test_rate_solution_simple(self):
-        r = Rate("20 ksol/s")
-        self.assertEqual(str(r), "20.0 ksol / s")
-        self.assertEqual(str(r.to_base_units()), "20000.0 sol / s")
+        r = Rate("20 kSol/s")
+        self.assertEqual(str(r), "20.0 kSol / s")
+        self.assertEqual(str(r.to_base_units()), "20000.0 Sol / s")
 
 
 class TestBenchmarker(MinerTestCase):
