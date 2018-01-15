@@ -4,7 +4,7 @@ setup(
     version="0.1",
     packages=find_packages(exclude=["tests"]),
     test_suite="tests",
-    install_requires=['pint'],
+    install_requires=['pint', 'requests'],
     entry_points={
         'console_scripts': [
             'miner = speed_miner.miner:start',

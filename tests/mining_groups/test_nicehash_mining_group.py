@@ -71,9 +71,15 @@ class TestNicehashMiningGroup(MinerTestCase):
 
         return miner
 
+    def _supported_algos(self):
+        return {"equihash", "lyra2v2", "skein"}
+
+    @patch("speed_miner.mining_groups.multipool_mining_group.get_supported_algos")
     @patch("speed_miner.mining_groups.zpool_mining_group.Fetcher.fetch_json_api")
     @patch("speed_miner.mining_groups.multipool_mining_group.get_miner_for_algo")
-    def test_get_most_profitable_miner_algo(self, get_miner_for_algo, fetch_json_api):
+    def test_get_most_profitable_miner_algo(
+            self, get_miner_for_algo, fetch_json_api, get_supported_algos):
+        get_supported_algos.return_value = self._supported_algos()
         get_miner_for_algo.side_effect = self._get_miner_mock
         fetch_json_api.return_value = self._get_currency_api_resp()
         z = NicehashMiningGroup("BTC", "fdsafdsafdsa")
@@ -82,11 +88,14 @@ class TestNicehashMiningGroup(MinerTestCase):
             "https://api.nicehash.com/api?method=simplemultialgo.info")
         self.assertEqual(miner._algo, "equihash")
 
+    @patch("speed_miner.mining_groups.multipool_mining_group.get_supported_algos")
     @patch("speed_miner.mining_groups.zpool_mining_group.Fetcher.fetch_json_api")
     @patch("speed_miner.mining_groups.multipool_mining_group.get_miner_for_algo")
-    def test_get_most_profitable_miner_algo_blacklist(self, get_miner_for_algo, fetch_json_api):
+    def test_get_most_profitable_miner_algo_blacklist(
+            self, get_miner_for_algo, fetch_json_api, get_supported_algos):
         get_miner_for_algo.side_effect = self._get_miner_mock
         fetch_json_api.return_value = self._get_currency_api_resp()
+        get_supported_algos.return_value = self._supported_algos()
         z = NicehashMiningGroup("fdsafdsafdsa", algo_blacklist={"equihash"})
         miner = z.get_most_profitable_miner()
         fetch_json_api.assert_called_with(

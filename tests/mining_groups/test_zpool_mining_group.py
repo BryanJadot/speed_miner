@@ -110,9 +110,15 @@ class TestZPoolMiningGroup(MinerTestCase):
         elif "currencies" in url:
             return self._get_currency_api_resp()
 
+    def _supported_algos(self):
+        return {"skein", "lyra2v2", "equihash"}
+
+    @patch("speed_miner.mining_groups.multipool_mining_group.get_supported_algos")
     @patch("speed_miner.mining_groups.zpool_mining_group.Fetcher.fetch_json_api")
     @patch("speed_miner.mining_groups.multipool_mining_group.get_miner_for_algo")
-    def test_get_most_profitable_miner_algo(self, get_miner_for_algo, fetch_json_api):
+    def test_get_most_profitable_miner_algo(
+            self, get_miner_for_algo, fetch_json_api, get_supported_algos):
+        get_supported_algos.return_value = self._supported_algos()
         get_miner_for_algo.side_effect = self._get_miner_mock
         fetch_json_api.side_effect = self._fetch_json_api_mock
         z = ZPoolMiningGroup("BTC", "fdsafdsafdsa")
@@ -120,9 +126,12 @@ class TestZPoolMiningGroup(MinerTestCase):
         fetch_json_api.assert_called_with("http://www.zpool.ca/api/status")
         self.assertEqual(miner._algo, "skein")
 
+    @patch("speed_miner.mining_groups.multipool_mining_group.get_supported_algos")
     @patch("speed_miner.mining_groups.zpool_mining_group.Fetcher.fetch_json_api")
     @patch("speed_miner.mining_groups.multipool_mining_group.get_miner_for_algo")
-    def test_get_most_profitable_miner_currency(self, get_miner_for_algo, fetch_json_api):
+    def test_get_most_profitable_miner_currency(
+            self, get_miner_for_algo, fetch_json_api, get_supported_algos):
+        get_supported_algos.return_value = self._supported_algos()
         get_miner_for_algo.side_effect = self._get_miner_mock
         fetch_json_api.side_effect = self._fetch_json_api_mock
         z = ZPoolMiningGroup("BTC", "fdsafdsafdsa", algo_data_source="currency")
@@ -130,22 +139,27 @@ class TestZPoolMiningGroup(MinerTestCase):
         fetch_json_api.assert_called_with("http://www.zpool.ca/api/currencies")
         self.assertEqual(miner._algo, "skein")
 
+    @patch("speed_miner.mining_groups.multipool_mining_group.get_supported_algos")
     @patch("speed_miner.mining_groups.zpool_mining_group.Fetcher.fetch_json_api")
     @patch("speed_miner.mining_groups.multipool_mining_group.get_miner_for_algo")
-    def test_get_most_profitable_miner_algo_blacklist(self, get_miner_for_algo, fetch_json_api):
+    def test_get_most_profitable_miner_algo_blacklist(
+            self, get_miner_for_algo, fetch_json_api, get_supported_algos):
         get_miner_for_algo.side_effect = self._get_miner_mock
         fetch_json_api.side_effect = self._fetch_json_api_mock
+        get_supported_algos.return_value = self._supported_algos()
         z = ZPoolMiningGroup("BTC", "fdsafdsafdsa", algo_blacklist={"skein"})
         miner = z.get_most_profitable_miner()
         self.assertEqual(miner._algo, "lyra2v2")
 
+    @patch("speed_miner.mining_groups.multipool_mining_group.get_supported_algos")
     @patch("speed_miner.mining_groups.zpool_mining_group.LOG.debug")
     @patch("speed_miner.mining_groups.zpool_mining_group.Fetcher.fetch_json_api")
     @patch("speed_miner.mining_groups.multipool_mining_group.get_miner_for_algo")
     def test_get_most_profitable_miner_calc_all_algo_data_sources(
-            self, get_miner_for_algo, fetch_json_api, debug):
+            self, get_miner_for_algo, fetch_json_api, debug, get_supported_algos):
         get_miner_for_algo.side_effect = self._get_miner_mock
         fetch_json_api.side_effect = self._fetch_json_api_mock
+        get_supported_algos.return_value = self._supported_algos()
         z = ZPoolMiningGroup("BTC", "fdsafdsafdsa", calc_all_algo_data_sources=True)
         miner = z.get_most_profitable_miner()
         fetch_json_api.assert_has_calls(
