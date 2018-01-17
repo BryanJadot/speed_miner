@@ -28,11 +28,11 @@ class NicehashMiningGroup(MultipoolMiningGroup):
 
     def _get_nicehash_profitability_unit(self, algo):
         if algo == "equihash":
-            return "Msol"
+            return "MSol"
         return "MH"
 
     def _get_prof_str(self, estimate, algo):
-        return "%s mbtc/%s*s/day" % (estimate, self._get_nicehash_profitability_unit(algo))
+        return "%s mBTC/%s*s/day" % (estimate, self._get_nicehash_profitability_unit(algo))
 
     def _get_url(self, algo):
         return "stratum+tcp://%s%s" % (algo, NicehashMiningGroup.NICEHASH_URL_SUFFIX)
