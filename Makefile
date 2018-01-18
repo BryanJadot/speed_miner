@@ -29,17 +29,7 @@ tpruvot-ccminer: deps-dir
 		sudo cp ccminer $(BIN_DIR)/tpruvot-ccminer; \
 	fi
 
-vertminer: deps-dir
-	if [ ! -d "./$(DEPS_DIR)/vertminer" ]; then \
-		git clone https://github.com/vertcoin/vertminer-nvidia.git $(DEPS_DIR)/vertminer && \
-		cd $(DEPS_DIR)/vertminer && \
-		git checkout 3042aa21bedf15d9b9333750331d317705e2118d && \
-		git apply ../../$(PATCH_DIR)/vertminer_patch && \
-		./build.sh && \
-		sudo cp vertminer $(BIN_DIR)/vertminer; \
-	fi
-
-deps: alexis-ccminer tpruvot-ccminer vertminer
+deps: alexis-ccminer tpruvot-ccminer
 
 install: deps
 	sudo python3 setup.py install

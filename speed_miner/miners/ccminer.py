@@ -126,6 +126,8 @@ class CCMiner(AbstractMiner):
         # Hack to set intensity for a specific algo.
         # nist5
         # skein? 27 may be better than 20
+        if algo == "lyra2v2":
+            return 22
         return None
 
     def _get_run_cmd(
