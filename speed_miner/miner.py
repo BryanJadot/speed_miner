@@ -114,4 +114,5 @@ def start():
         raise ex
     except Exception:
         LOG.exception("Uncaught exception caused a program crash!")
+        LOG.debug("Exiting...")
         exit(1)

@@ -13,9 +13,11 @@ class Fetcher(object):
 
     @staticmethod
     def fetch_json_api(url, use_cache_on_failure=False):
+        LOG.debug("Fetching %s...", url)
         num_tries = 0
         while True:
             resp_json = Fetcher._try_fetching_resp(url)
+            LOG.debug("Response from %s: %s", url, resp_json)
 
             if resp_json:
                 Fetcher._cache[url] = resp_json
