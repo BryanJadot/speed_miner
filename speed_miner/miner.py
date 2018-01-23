@@ -1,6 +1,7 @@
 import atexit
 import os
 import signal
+import sys
 
 from argparse import ArgumentParser
 
@@ -115,4 +116,4 @@ def start():
     except Exception:
         LOG.exception("Uncaught exception caused a program crash!")
         LOG.debug("Exiting...")
-        exit(1)
+        sys.exit(1)

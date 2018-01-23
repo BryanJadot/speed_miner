@@ -35,8 +35,7 @@ class TestZPoolMinerConfigLoader(MinerTestCase):
         self.assertEqual(config["algo_data_source"], "algo")
         self.assertEqual(config["calc_all_algo_data_sources"], False)
 
-    def _check_desc(self, _exit, _print):
-        _exit.assert_called_with(1)
+    def _check_desc(self, _print):
         desc = _print.call_args[0][0]
         self.assertIn("Looks like you're trying", desc)
         self.assertIn("A list of algos to not mine", desc)
@@ -47,15 +46,15 @@ class TestZPoolMinerConfigLoader(MinerTestCase):
         self.assertIn("default: \"false\"", desc)
 
     @patch("speed_miner.misc.config_loader.print")
-    @patch("speed_miner.misc.config_loader.exit")
-    def test_bad_param(self, _exit, _print):
+    def test_bad_param(self, _print):
         d = {
             "payout_currency": "btc",
             "algo_blacklist": "skein, equihash",
             "algo_data_source": "currencfdsay",
         }
-        self.c.process_config_from_dict(d)
-        self._check_desc(_exit, _print)
+        with self.assertRaises(SystemExit):
+            self.c.process_config_from_dict(d)
+        self._check_desc(_print)
 
 
 class TestZPoolMiningGroup(MinerTestCase):

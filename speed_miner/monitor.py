@@ -1,3 +1,5 @@
+import sys
+
 from time import sleep, time
 
 from speed_miner.misc.logging import LOG
@@ -46,7 +48,7 @@ class MiningMonitor(object):
         while time() < start_time + MiningMonitor.CHECK_INTERVAL and current_miner.is_mining():
             if MiningMonitor._exit_status is not None:
                 LOG.debug("Exiting program with status %i...", MiningMonitor._exit_status)
-                exit(MiningMonitor._exit_status)
+                sys.exit(MiningMonitor._exit_status)
 
             sleep(0.01)
 

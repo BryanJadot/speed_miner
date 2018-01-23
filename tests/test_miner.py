@@ -30,16 +30,15 @@ class TestMinerConfigLoader(MinerTestCase):
         self.assertEqual(config["wallet"], "123")
         self.assertEqual(config["log_level"], 20)
 
-    def _check_desc(self, _exit, _print):
-        _exit.assert_called_with(1)
+    def _check_desc(self, _print):
         desc = _print.call_args[0][0]
         self.assertIn("Let's mine some coin", desc)
         self.assertIn("CRITICAL", desc)
         self.assertIn("default: \"INFO\"", desc)
 
     @patch("speed_miner.misc.config_loader.print")
-    @patch("speed_miner.misc.config_loader.exit")
-    def test_bad_param(self, _exit, _print):
+    def test_bad_param(self, _print):
         d = {}
-        self.c.process_config_from_dict(d)
-        self._check_desc(_exit, _print)
+        with self.assertRaises(SystemExit):
+            self.c.process_config_from_dict(d)
+        self._check_desc(_print)

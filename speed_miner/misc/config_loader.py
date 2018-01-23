@@ -30,7 +30,7 @@ def _catch_invalid_config(func):
             return func(self, *args, **kwargs)
         except InvalidMiningConfig as err:
             self._print_error(err)
-            exit(1)
+            sys.exit(1)
 
     return wrapper
 

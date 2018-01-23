@@ -80,8 +80,7 @@ class TestDummyConfigLoader(MinerTestCase):
             self.assertEqual(config["param"], 0)
             self.assertEqual(config["param1"], 1)
 
-    def _check_desc(self, _exit, _print, err_str):
-        _exit.assert_called_with(1)
+    def _check_desc(self, _print, err_str):
         desc = _print.call_args[0][0]
         self.assertIn(self.c.describe(), desc)
         self.assertIn(self.c.describe_param(), desc)
@@ -90,24 +89,31 @@ class TestDummyConfigLoader(MinerTestCase):
         self.assertIn(err_str, desc)
 
     @patch("speed_miner.misc.config_loader.print")
-    @patch("speed_miner.misc.config_loader.exit")
-    def test_bad_param(self, _exit, _print):
+    def test_bad_param(self, _print):
         d = {
             "param": "bad",
             "param1": "yay",
         }
-        self.c.process_config_from_dict(d)
-        self._check_desc(_exit, _print, "\"bad\"")
+        with self.assertRaises(SystemExit):
+            self.c.process_config_from_dict(d)
 
-        d = {
-            "param": "good",
-        }
-        self.c.process_config_from_dict(d)
-        self._check_desc(_exit, _print, "\"bad\"")
+        self._check_desc(_print, "\"bad\"")
 
     @patch("speed_miner.misc.config_loader.print")
-    @patch("speed_miner.misc.config_loader.exit")
-    def test_bad_file_parse(self, _exit, _print):
+    def test_bad_default_param(self, _print):
+        d = {
+            "param": "good",
+            "param1": "bad",
+        }
+        with self.assertRaises(SystemExit):
+            self.c.process_config_from_dict(d)
+
+        self._check_desc(_print, "\"bad\"")
+
+    @patch("speed_miner.misc.config_loader.print")
+    def test_bad_file_parse(self, _print):
         with patch("speed_miner.misc.config_loader.open", mock_open(read_data="fdsa.fds//")):
-            self.c.process_config_from_file("")
-            self._check_desc(_exit, _print, "Config file is not JSON formatted")
+            with self.assertRaises(SystemExit):
+                self.c.process_config_from_file("")
+
+            self._check_desc(_print, "Config file is not JSON formatted")
