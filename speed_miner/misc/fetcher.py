@@ -1,5 +1,5 @@
 from requests import get as rget
-from requests.exceptions import ReadTimeout
+from requests.exceptions import ConnectionError, ReadTimeout
 
 from time import sleep
 
@@ -34,6 +34,8 @@ class Fetcher(object):
         try:
             resp = rget(url, timeout=Fetcher._TIMEOUT)
         except ReadTimeout as e:
+            return None
+        except ConnectionError as e:
             return None
 
         if resp.status_code != 200:
