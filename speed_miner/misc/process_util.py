@@ -6,11 +6,13 @@ from speed_miner.misc.logging import LOG
 procs = []
 
 
-def start_proc(cmd, pipe_stdout=False):
+def start_proc(cmd, pipe_stdout=False, preexec_fn=None):
     global pid_to_procs
     kwargs = {}
     if pipe_stdout:
         kwargs["stdout"] = PIPE
+    if preexec_fn:
+        kwargs["preexec_fn"] = preexec_fn
 
     p = Popen(cmd.split(" "), **kwargs)
 
@@ -47,9 +49,9 @@ def term_proc(proc, term_wait_time=3):
     LOG.debug("Process %i terminated with %i", proc.pid, proc.poll())
 
 
-def term_all_procs():
+def term_all_procs(term_wait_time=1):
     global procs
     LOG.debug("Terminating all processes...")
     for p in procs:
         if p.poll() is None:
-            term_proc(p, term_wait_time=1)
+            term_proc(p, term_wait_time=term_wait_time)
