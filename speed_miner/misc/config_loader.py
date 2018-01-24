@@ -69,7 +69,8 @@ class MiningConfigLoader(ABC, metaclass=MiningConfigLoaderMeta):
     @_catch_invalid_config
     def process_config_from_file(self, filename):
         try:
-            json_dict = loads(open(filename, "r").read())
+            with open(filename, "r") as f:
+                json_dict = loads(f.read())
         except JSONDecodeError as err:
             raise InvalidMiningConfig("Config file is not JSON formatted")
 

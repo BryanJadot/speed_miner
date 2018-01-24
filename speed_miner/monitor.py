@@ -1,3 +1,4 @@
+import psutil
 import sys
 
 from time import sleep, time
@@ -37,7 +38,12 @@ class MiningMonitor(object):
                 current_miner = best_miner
                 LOG.info("Switch complete! Shares incoming...")
 
+            MiningMonitor._check_file_descriptors()
             MiningMonitor._wait(current_miner)
+
+    @staticmethod
+    def mark_monitor_for_exit(status):
+        MiningMonitor._exit_status = status
 
     @staticmethod
     def _wait(current_miner):
@@ -53,5 +59,9 @@ class MiningMonitor(object):
             sleep(0.01)
 
     @staticmethod
-    def mark_monitor_for_exit(status):
-        MiningMonitor._exit_status = status
+    def _check_file_descriptors():
+        warn_at = 20
+        num_fds = psutil.Process().num_fds()
+
+        if num_fds > warn_at:
+            LOG.warn("%i file descriptors open!", num_fds)

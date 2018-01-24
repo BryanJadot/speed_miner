@@ -44,6 +44,15 @@ def term_proc(proc, term_wait_time=3):
         proc.kill()
         proc.wait()
 
+    if proc.stdout:
+        proc.stdout.close()
+
+    if proc.stderr:
+        proc.stder.close()
+
+    if proc.stdin:
+        proc.stdin.close()
+
     assert proc.poll() is not None, "Proc %i didn't terminate properly" % proc.pid
 
     LOG.debug("Process %i terminated with %i", proc.pid, proc.poll())

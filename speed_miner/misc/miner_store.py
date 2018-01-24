@@ -24,16 +24,17 @@ class MinerStore(object):
     @staticmethod
     def _create_if_not_exists():
         if not os.path.isfile(MinerStore.PATH_TO_STORE):
-            open(MinerStore.PATH_TO_STORE, "w+").write("{}")
+            with open(MinerStore.PATH_TO_STORE, "w+") as f:
+                f.write("{}")
 
     @staticmethod
     def _save(new_dict):
         MinerStore._create_if_not_exists()
-        open(MinerStore.PATH_TO_STORE, "w").write(json.dumps(new_dict))
+        with open(MinerStore.PATH_TO_STORE, "w") as f:
+            f.write(json.dumps(new_dict))
 
     @staticmethod
     def _load():
         MinerStore._create_if_not_exists()
-        store = open(MinerStore.PATH_TO_STORE, "r").read()
-
-        return json.loads(store)
+        with open(MinerStore.PATH_TO_STORE, "r") as f:
+            return json.loads(f.read())
