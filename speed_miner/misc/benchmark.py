@@ -79,7 +79,7 @@ class Benchmarker(object):
 
     @staticmethod
     def init_unit_reg():
-        ureg = UnitRegistry()
+        ureg = UnitRegistry(on_redefinition="ignore")
 
         ureg.define("hash = [hash] = H")
         ureg.define("solution = [solution] = Sol")
