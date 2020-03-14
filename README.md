@@ -11,5 +11,6 @@ Before starting, it will benchmark your hardware to determine the optimal miner 
 Use Ubuntu for best results.  Mostly tested on Ubuntu.
 
 make install - to install
+
 make run - to run
 
